@@ -30,9 +30,10 @@ namespace ITPIE.CLI.Commands
         public async Task<bool> Run(string cmd)
         {
             var terms = cmd.Split(' ');
-            if (terms.Length < 2)
+            if (terms.Length == 1)
             {
-                Console.WriteLine($"Unknown command: {cmd}");
+                Console.WriteLine($"  You must supply a sub command.");
+                HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
                 return false;
             }
 
@@ -72,6 +73,11 @@ namespace ITPIE.CLI.Commands
 
                 case "route":
                     await this.HandleRoute(obj, opt);
+                    break;
+
+                default:
+                    Console.WriteLine("  That sub command is not supported.");
+                    HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
                     break;
             }
             return true;
@@ -275,27 +281,44 @@ namespace ITPIE.CLI.Commands
             }
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                "find device <ip|hostname|network>",
-                "find vrf <name|ip|network> loopback",
-                "find vrf <name|ip|network>",
-                "find vlan <id|name>",
-                "find vlan <id|name> detail",
-                "find vlan <vlanid|ip|hostname> interface",
-                "find interface <desc>",
-                "find stp <vlanid|mstid|bridgeaddress|ip|hostname>",
-                "find stp <vlanid|mstid|bridgeaddress|ip|hostname> detail",
-                "find stp <vlanid|mstid|bridgeaddress|ip|hostname> interface",
-                "find arp <ip|network>",
-                "find arp <ip|network> history",
-                "find route <ip|prefix>",
-                "find route <ip|prefix> all",
-                "find route <ip|prefix> exact",
-                "find route <ip|prefix> vrf <routing-instance|vrf>",
-                "find neighbor <ip|hostname>",
-                "find neighbor <ip|hostname> detail"
+            return new Help[]{
+                new Help
+                {
+                    Command = $"find",
+                    Description = new List<string>
+                    {
+                        "Intelligently search for specific types of information on your network.",
+                        "",
+                        "Sub Commands:",
+                        "  find device <ip|hostname|network>",
+                        "",
+                        "  find interface <desc>",
+                        "",
+                        "  find neighbor <ip|hostname>",
+                        "  find neighbor <ip|hostname> detail",
+                        "",
+                        "  find vlan <id|name>",
+                        "  find vlan <id|name> detail",
+                        "  find vlan <vlanid|ip|hostname> interface",
+                        "",
+                        "  find stp <vlanid|mstid|bridgeaddress|ip|hostname>",
+                        "  find stp <vlanid|mstid|bridgeaddress|ip|hostname> detail",
+                        "  find stp <vlanid|mstid|bridgeaddress|ip|hostname> interface",
+                        "",
+                        "  find arp <ip|network>",
+                        "  find arp <ip|network> history",
+                        "",
+                        "  find route <ip|prefix>",
+                        "  find route <ip|prefix> all",
+                        "  find route <ip|prefix> exact",
+                        "  find route <ip|prefix> vrf <routing-instance|vrf>",
+                        "",
+                        "  find vrf <name|ip|network> loopback",
+                        "  find vrf <name|ip|network>",
+                    }
+                }
             };
         }
     }

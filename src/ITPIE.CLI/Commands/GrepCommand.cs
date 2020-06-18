@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
 {
@@ -72,10 +74,24 @@ namespace ITPIE.CLI.Commands
             return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                $"env | list the current environment"
+            return new Help[]{
+                new Help{
+                    Command = "grep|in|re",
+                    Description = new List<string>{
+                        "Used in conjunction with pipe, it allows you to filter results.",
+                        "  Currently supported commands:",
+                        "   - 'grep|in' are the same and do a simple contains check for the value.",
+                        "   - 're' will perform a Regular Expression match.",
+                        "  Both will support quoting the value.  the 're' command will allow ",
+                        "    the '|' character only if the expresssion is quoted.",
+                        "  Examples:",
+                        "   - find device * | in 10.10.10.10",
+                        "   - find device * | re \\d+30",
+                        "   - find device * | re \"Cisco|Juniper\"",
+                    }
+                }
             };
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
 {
@@ -11,7 +12,7 @@ namespace ITPIE.CLI.Commands
 
         bool Match(string cmd);
 
-        string[] GetHelp();
+        Help[] GetHelp();
     }
 
     public interface IPipableCommand : ICommand

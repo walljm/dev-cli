@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
 {
@@ -41,10 +42,17 @@ namespace ITPIE.CLI.Commands
             return cmd.StartsWith(this.Name);
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                $"set {Constants.ItpieUrl} <url of the itpie api> | sets the ITPIE api endpoint url e.g. https://itpie.yourdomain.com/api"
+            return new Help[]{
+                new Help
+                {
+                    Command = $"set {Constants.ItpieUrl} <api url>",
+                    Description = new List<string>
+                    {
+                        "Sets the ITPIE api endpoint url e.g. https://itpie.yourdomain.com/api"
+                    }
+                }
             };
         }
     }

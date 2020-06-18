@@ -60,7 +60,7 @@ namespace ITPIE.CLI.Commands
         public string GetPass()
         {
             var pass = string.Empty;
-            var env_pass = Environment.GetEnvironmentVariable(Constants.EnvironmentPasswordVarName);
+            var env_pass = GetEnvPass();
             if (env_pass != null)
             {
                 pass = env_pass;
@@ -80,9 +80,14 @@ namespace ITPIE.CLI.Commands
             return pass;
         }
 
+        public string GetEnvPass()
+        {
+            return Environment.GetEnvironmentVariable(Constants.EnvironmentPasswordVarName);
+        }
+
         public string GetUser()
         {
-            var env_user = Environment.GetEnvironmentVariable(Constants.EnvironmentUsernameVarName);
+            var env_user = GetEnvUser();
             if (env_user != null)
             {
                 return env_user;
@@ -92,6 +97,11 @@ namespace ITPIE.CLI.Commands
                 Console.Write("Username: ");
                 return Console.ReadLine();
             }
+        }
+
+        public string GetEnvUser()
+        {
+            return Environment.GetEnvironmentVariable(Constants.EnvironmentUsernameVarName);
         }
 
         public async Task<bool> DoLogin(string user, string pass)
@@ -134,10 +144,17 @@ namespace ITPIE.CLI.Commands
             return cmd.StartsWith(this.Name);
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                "login | logs the user into the itpie server."
+            return new Help[]{
+                new Help
+                {
+                    Command = $"login",
+                    Description = new List<string>
+                    {
+                        "Authenticates the user with the itpie server."
+                    }
+                }
             };
         }
     }

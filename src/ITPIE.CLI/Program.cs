@@ -54,6 +54,18 @@ namespace ITPIE.CLI
                 return;
             }
 
+            // if the user and pass environment vars are set, just log the user in already.
+            var lc = stack.Peek().GetCommand<LoginCommand>();
+            var u = lc.GetEnvUser();
+            var p = lc.GetEnvPass();
+            if (u != null && p != null)
+            {
+                var did_login = await lc.Run(lc.Name);
+                if (!did_login)
+                    return;
+            }
+
+            // enter the interactive loop.
             while (true)
             {
                 var context = stack.Peek();

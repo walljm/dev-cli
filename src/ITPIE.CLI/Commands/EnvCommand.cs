@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
 {
@@ -31,10 +32,17 @@ namespace ITPIE.CLI.Commands
             return cmd.StartsWith(this.Name);
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                $"env | list the current environment"
+            return new Help[]{
+                new Help
+                {
+                    Command = $"env",
+                    Description = new List<string>
+                    {
+                        "List the current environment variables for the cli."
+                    }
+                }
             };
         }
     }

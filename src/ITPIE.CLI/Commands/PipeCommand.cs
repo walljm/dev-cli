@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
 {
@@ -28,11 +29,21 @@ namespace ITPIE.CLI.Commands
                           .Select(o => o.Trim())
                           .ToList()
                           ;
-            cmds.RemoveAt(cmds.Count-1); // remove the last empty item.
+            // we should always have at least 3 at this point.  two real commands (for 1 pipe)
+            //  and a blank string at the end, because of the way that regex split works.
+            if (cmds.Count < 3)
+            {
+                Console.WriteLine("Something went wrong. :(");
+                return false;
+            }
 
+            cmds.RemoveAt(cmds.Count - 1); // remove the last empty item, because regex.split is weird.
+
+            // capture the original output stream.
             var stdout = Console.Out;
-            var last = new StringBuilder();
 
+            // capture each commands output and pass it into the next command.
+            var last = new StringBuilder();
             foreach (var cmdText in cmds)
             {
                 var sb = new StringBuilder();
@@ -45,6 +56,7 @@ namespace ITPIE.CLI.Commands
                 last = sb;
             }
 
+            // show the final output to the user
             using (var sr = new StringReader(last.ToString()))
             {
                 string line;
@@ -53,6 +65,8 @@ namespace ITPIE.CLI.Commands
                     stdout.WriteLine(line);
                 }
             }
+
+            // put the stream back the way you found it.
             Console.SetOut(stdout);
 
             return true;
@@ -65,10 +79,18 @@ namespace ITPIE.CLI.Commands
             return t.Contains(this.Name);
         }
 
-        public string[] GetHelp()
+        public Help[] GetHelp()
         {
-            return new[]{
-                $"env | list the current environment"
+            return new Help[]{
+                new Help{
+                    Command = "|",
+                    Description = new List<string>{
+                        "Allows you to send out from a command into another.",
+                        "  Examples:",
+                        "   - find device * | in 10.10.10.10",
+                        "   - find device * | re \"Cisco|Juniper\"",
+                    }
+                }
             };
         }
     }

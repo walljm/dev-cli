@@ -13,8 +13,9 @@ namespace ITPIE.CLI
         public string Prompt { get; set; }
         public List<ICommand> Commands { get; set; }
 
-        public async Task HandleCommand(string cmd)
+        public async Task HandleCommand(string str)
         {
+            var cmd = str.TrimStart();
             foreach (var command in this.Commands.Where(c => c is PipeCommand)) // handle the pipe command first, always.
             {
                 if (command.Match(cmd))
@@ -32,10 +33,15 @@ namespace ITPIE.CLI
                     return;
                 }
             }
+
+            // if you got this far, then the command isn't supported
+            Console.WriteLine($"The command \"{cmd}\" isn't a known command.  Please use one of the provided commands below.");
+            HelpCommand.WriteHelp(this.Commands);
         }
 
-        public async Task HandlePipeCommand(string cmd, StringBuilder stdId)
+        public async Task HandlePipeCommand(string str, StringBuilder stdId)
         {
+            var cmd = str.TrimStart();
             foreach (var command in this.Commands)
             {
                 if (command.Match(cmd))
@@ -50,6 +56,10 @@ namespace ITPIE.CLI
                     return;
                 }
             }
+
+            // if you got this far, then the command isn't supported
+            Console.WriteLine($"The piped command \"{cmd}\" isn't a known command. Please use one of the provided commands below.");
+            HelpCommand.WriteHelp(this.Commands);
         }
 
         public T GetCommand<T>()

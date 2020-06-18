@@ -35,20 +35,23 @@ namespace ITPIE.CLI.Commands
             using (var sr = new StringReader(stdIn.ToString()))
             {
                 string line;
+                var i = 0;
+                var t = 0;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    HandleRegex(query, line);
+                    t++;
+                    if (Regex.IsMatch(line, query))
+                    {
+                        Console.WriteLine(line);
+                        i++;
+                    }
                 }
+
+                Console.WriteLine();
+                Console.WriteLine($"Matching Lines: {i}, Total Lines: {t}");
+                Console.WriteLine();
             }
             return true;
-        }
-
-        private static void HandleRegex(string query, string line)
-        {
-            if (Regex.IsMatch(line, query))
-            {
-                Console.WriteLine(line);
-            }
         }
 
         public bool Match(string cmd)

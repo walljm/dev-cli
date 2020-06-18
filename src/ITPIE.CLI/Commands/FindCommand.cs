@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using ITPIE.CLI.Commands.Find;
 using ITPIE.CLI.Models;
 
 namespace ITPIE.CLI.Commands
@@ -32,50 +33,69 @@ namespace ITPIE.CLI.Commands
                 return false;
             }
 
+            return await this.HandleFindCommand(terms);
+        }
+
+        public async Task<bool> HandleFindCommand(string[] terms)
+        {
+            // Subjects
+            var vrf = TermBuilder.Build("vrf", 3);
+            var vlan = TermBuilder.Build("vlan", 2);
+            var device = TermBuilder.Build("device", 2, new[] { TermBuilder.Build("dvc", 3) });
+            var ifc = TermBuilder.Build("interface", 3, new[] { TermBuilder.Build("port", 4), TermBuilder.Build("ifc", 3) }); // also an option
+            var neighbor = TermBuilder.Build("neighbor", 2);
+            var arp = TermBuilder.Build("arp", 3);
+            var route = TermBuilder.Build("route", 3);
+            var stp = TermBuilder.Build("stp", 3, new[] { TermBuilder.Build("spanning-tree", 4) });
+
             var sub = terms[1];
             var obj = terms.Length < 3 ? "*" : terms[2];  // default to wildcard
             var opt = terms.Length < 4 ? string.Empty : terms[3]; // default to empty.
 
-            switch (sub)
+            if (device.Is(sub))
             {
-                case "device":
-                    await this.HandleDevice(obj);
-                    break;
-
-                case "arp":
-                    await this.HandleArp(obj, opt);
-                    break;
-
-                case "interface":
-                    await this.HandleInterface(obj);
-                    break;
-
-                case "neighbor":
-                    await this.HandleNeighbor(obj);
-                    break;
-
-                case "stp":
-                    await this.HandleStp(obj, opt);
-                    break;
-
-                case "vlan":
-                    await this.HandleVlan(obj, opt);
-                    break;
-
-                case "vrf":
-                    await this.HandleVrf(obj, opt);
-                    break;
-
-                case "route":
-                    await this.HandleRoute(obj, opt);
-                    break;
-
-                default:
-                    Console.WriteLine("  That sub command is not supported.");
-                    HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
-                    break;
+                await this.HandleDevice(obj);
+                return true;
             }
-            return true;
+            else if (arp.Is(sub))
+            {
+                await this.HandleArp(obj, opt);
+                return true;
+            }
+            else if (ifc.Is(sub))
+            {
+                await this.HandleInterface(obj);
+                return true;
+            }
+            else if (neighbor.Is(sub))
+            {
+                await this.HandleNeighbor(obj);
+                return true;
+            }
+            else if (stp.Is(sub))
+            {
+                await this.HandleStp(obj, opt);
+                return true;
+            }
+            else if (vlan.Is(sub))
+            {
+                await this.HandleVlan(obj, opt);
+                return true;
+            }
+            else if (vrf.Is(sub))
+            {
+                await this.HandleVrf(obj, opt);
+                return true;
+            }
+            else if (route.Is(sub))
+            {
+                await this.HandleRoute(obj, opt);
+                return true;
+            }
+
+            Console.WriteLine("  That sub command is not supported.");
+            HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
+            return false;
         }
 
         public async Task HandleDevice(string obj)
@@ -281,6 +301,9 @@ namespace ITPIE.CLI.Commands
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine();
+            Console.WriteLine($"Total Rows: {c.Items.Count}");
+            Console.WriteLine();
         }
 
         public bool Match(string cmd)

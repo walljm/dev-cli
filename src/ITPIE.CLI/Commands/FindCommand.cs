@@ -82,8 +82,7 @@ namespace ITPIE.CLI.Commands
         {
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/device?term={obj}";
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<DeviceSearchResult>(r);
+            await this.HandleResponse<DeviceSearchResult>(url);
         }
 
         public async Task HandleArp(string obj, string opt)
@@ -94,41 +93,36 @@ namespace ITPIE.CLI.Commands
             {
                 url = $"{itpieUrl}/arp/history?term={obj}";
             }
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<ArpSearchResult>(r);
+            await this.HandleResponse<ArpSearchResult>(url);
         }
 
         public async Task HandleInterface(string obj)
         {
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/interface?term={obj}";
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<InterfaceSearchResult>(r);
+            await this.HandleResponse<InterfaceSearchResult>(url);
         }
 
         public async Task HandleNeighbor(string obj)
         {
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/neighbor?term={obj}";
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<NeighborSearchResult>(r);
+            await this.HandleResponse<NeighborSearchResult>(url);
         }
 
         public async Task HandleStp(string obj, string opt)
         {
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
-            var url = $"{itpieUrl}/stp?term={obj}";
             if (opt == "interface")
             {
-                url = $"{itpieUrl}/arp/interface?term={obj}";
-
-                var r = await this.client.GetAsync(url);
-                this.HandleResponse<StpInterfaceSearchResult>(r);
+                var url = $"{itpieUrl}/arp/interface?term={obj}";
+                await this.HandleResponse<StpInterfaceSearchResult>(url);
             }
             else
             {
-                var r = await this.client.GetAsync(url);
-                this.HandleResponse<StpSearchResult>(r);
+                var url = $"{itpieUrl}/stp?term={obj}";
+
+                await this.HandleResponse<StpSearchResult>(url);
             }
         }
 
@@ -138,20 +132,17 @@ namespace ITPIE.CLI.Commands
             if (opt == "interface")
             {
                 var url = $"{itpieUrl}/vlan/interface?term={obj}";
-                var r = await this.client.GetAsync(url);
-                this.HandleResponse<VlanSearchInterfaceResult>(r);
+                await this.HandleResponse<VlanSearchInterfaceResult>(url);
             }
             else if (opt == "detail")
             {
                 var url = $"{itpieUrl}/vlan/detail?term={obj}";
-                var r = await this.client.GetAsync(url);
-                this.HandleResponse<VlanSearchDetailResult>(r);
+                await this.HandleResponse<VlanSearchDetailResult>(url);
             }
             else
             {
                 var url = $"{itpieUrl}/vlan?term={obj}";
-                var r = await this.client.GetAsync(url);
-                this.HandleResponse<VlanSearchResult>(r);
+                await this.HandleResponse<VlanSearchResult>(url);
             }
         }
 
@@ -164,8 +155,7 @@ namespace ITPIE.CLI.Commands
                 url = $"{itpieUrl}/vrf/loopback?term={obj}";
             }
 
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<VrfSearchResult>(r);
+            await this.HandleResponse<VrfSearchResult>(url);
         }
 
         public async Task HandleRoute(string obj, string opt)
@@ -178,8 +168,7 @@ namespace ITPIE.CLI.Commands
                 url = $"{itpieUrl}/route/vrf?term={obj}&option={opt}";
             }
 
-            var r = await this.client.GetAsync(url);
-            this.HandleResponse<RouteSearchResult>(r);
+            await this.HandleResponse<RouteSearchResult>(url);
         }
 
         private class Column
@@ -206,19 +195,37 @@ namespace ITPIE.CLI.Commands
             }
         }
 
-        private async void HandleResponse<T>(HttpResponseMessage r)
+        private async Task HandleResponse<T>(string url)
         {
+            var r = await this.client.GetAsync(url);
+
             if (r.IsSuccessStatusCode)
             {
                 var c = await r.Content.ReadAsAsync<PagedResponse<T>>();
                 WriteResponse(c);
                 return;
             }
-            else
+
+            if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                var c = await r.Content.ReadAsStringAsync();
-                Console.WriteLine($"An Error occurred while speaking to the api: {r.StatusCode} {r.ReasonPhrase}\n{c}");
+                var lc = this.stack.Peek().GetCommand<LoginCommand>();
+                var u = lc.GetEnvUser();
+                var p = lc.GetEnvPass();
+                if (u != null && p != null)
+                {
+                    var did_login = await lc.Run(lc.Name);
+                    if (!did_login)
+                    {
+                        Console.WriteLine("The current user is not authorized to login to the provided ITPIE api.");
+                        return;
+                    }
+                }
+                await this.HandleResponse<T>(url); // try again now that you have logged back into the server.
+                return;
             }
+
+            var err = await r.Content.ReadAsStringAsync();
+            Console.WriteLine($"An Error occurred while speaking to the api: {r.StatusCode} {r.ReasonPhrase}\n{err}");
         }
 
         private static void WriteResponse<T>(PagedResponse<T> c)

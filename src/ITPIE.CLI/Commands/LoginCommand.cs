@@ -65,6 +65,10 @@ namespace ITPIE.CLI.Commands
             {
                 pass = env_pass;
             }
+            else if (this.stack.Peek().Variables.ContainsKey(Constants.Pass))
+            {
+                pass = this.stack.Peek().Variables[Constants.Pass].ToString();
+            }
             else
             {
                 Console.Write("Password: ");
@@ -91,6 +95,10 @@ namespace ITPIE.CLI.Commands
             if (env_user != null)
             {
                 return env_user;
+            }
+            else if (this.stack.Peek().Variables.ContainsKey(Constants.User))
+            {
+                return this.stack.Peek().Variables[Constants.User].ToString();
             }
             else
             {

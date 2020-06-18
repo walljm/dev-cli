@@ -14,6 +14,6 @@
         public string FHRPStatus { get; set; }
         public string Target { get; set; }
 
-        public override string ToString() => VrfName;
+        public override string ToString() => this.VrfName;
     }
 }

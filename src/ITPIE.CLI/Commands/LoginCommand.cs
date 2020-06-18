@@ -22,16 +22,16 @@ namespace ITPIE.CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            string user = GetUser();
-            string pass = GetPass();
+            string user = this.GetUser();
+            string pass = this.GetPass();
 
-            var did_login = await DoLogin(user, pass);
+            var did_login = await this.DoLogin(user, pass);
             if (!did_login)
             {
                 return false;
             }
 
-            InitAuthorizedContext();
+            this.InitAuthorizedContext();
 
             return true;
         }
@@ -43,9 +43,10 @@ namespace ITPIE.CLI.Commands
                 Prompt = "itpie#",
                 Commands = new List<ICommand>
                 {
-                    new FindCommand(stack, client),
-                    new SetCommand(stack),
-                    new EnvCommand(stack)
+                    new FindCommand(this.stack, this.client),
+                    new SetCommand(this.stack),
+                    new EnvCommand(this.stack),
+                    new HelpCommand(this.stack)
                 },
                 Variables = this.stack.Peek().Variables // transfer the variables.
             };
@@ -95,7 +96,7 @@ namespace ITPIE.CLI.Commands
         {
             var ctx = this.stack.Peek();
             var itpieUrl = ctx.Variables[Constants.ItpieUrl].ToString().TrimEnd('/');
-            var response = await client.PostAsJsonAsync($"{itpieUrl}/authentication/login",
+            var response = await this.client.PostAsJsonAsync($"{itpieUrl}/authentication/login",
                 new LocalLoginRequest
                 {
                     Email = user,
@@ -118,7 +119,7 @@ namespace ITPIE.CLI.Commands
                 return false;
             }
             var token = await response.Content.ReadAsAsync<Token>();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.SignedToken);
+            this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.SignedToken);
 
             ctx.Variables[Constants.User] = user;
             ctx.Variables[Constants.Pass] = pass;
@@ -128,7 +129,7 @@ namespace ITPIE.CLI.Commands
 
         public bool Match(string cmd)
         {
-            return cmd.StartsWith(Name);
+            return cmd.StartsWith(this.Name);
         }
 
         public string[] GetHelp()

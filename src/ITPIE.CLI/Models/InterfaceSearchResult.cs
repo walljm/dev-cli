@@ -18,6 +18,6 @@
         public string FirstSeen { get; set; }
         public string LastSeen { get; set; }
 
-        public override string ToString() => Hostname + ":" + InterfaceName;
+        public override string ToString() => this.Hostname + ":" + this.InterfaceName;
     }
 }

@@ -28,7 +28,7 @@ namespace ITPIE.CLI.Commands
 
         public bool Match(string cmd)
         {
-            return cmd.StartsWith(Name);
+            return cmd.StartsWith(this.Name);
         }
 
         public string[] GetHelp()

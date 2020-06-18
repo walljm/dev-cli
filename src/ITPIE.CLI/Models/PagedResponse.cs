@@ -6,7 +6,7 @@ namespace ITPIE.CLI.Models
     {
         public IList<T> Items { get; set; } = new List<T>();
 
-        public bool HasMore { get { return Total > Items.Count; } }
+        public bool HasMore { get { return this.Total > this.Items.Count; } }
 
         public int? Total { get; set; }
 

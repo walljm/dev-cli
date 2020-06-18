@@ -14,25 +14,7 @@ namespace ITPIE.CLI
 
         public async Task HandleCommand(string cmd)
         {
-            if (cmd == "help")
-            {
-                Console.WriteLine();
-                Console.WriteLine($"   Available Commands");
-                Console.WriteLine($"   --------------------------------------------------------------------------------");
-                foreach (var command in this.Commands)
-                {
-                    var helps = command.GetHelp();
-                    foreach (var help in helps)
-                    {
-                        Console.WriteLine($"   {help}");
-                    }
-                }
-                Console.WriteLine("   exit | exits the cli application");
-                Console.WriteLine();
-                return;
-            }
-
-            foreach (var command in Commands)
+            foreach (var command in this.Commands)
             {
                 if (command.Match(cmd))
                 {
@@ -42,19 +24,14 @@ namespace ITPIE.CLI
             }
         }
 
-        public string TabCompletion(string cmd)
-        {
-            return Commands.Select(c => c.Name).FirstOrDefault(c => c.StartsWith(cmd));
-        }
-
         public T GetCommand<T>()
         {
-            return (T)Commands.FirstOrDefault(c => c.GetType() == typeof(T));
+            return (T)this.Commands.FirstOrDefault(c => c.GetType() == typeof(T));
         }
 
         public void WritePrompt()
         {
-            Console.Write($"{Prompt} ");
+            Console.Write($"{this.Prompt} ");
         }
     }
 }

@@ -25,11 +25,11 @@ namespace ITPIE.CLI.Commands
 
             if (terms.Length < 2)
             {
-                Console.WriteLine("That term is unsupported. Please use: 'grep', 'in', 'contains', or 're'");
+                Console.WriteLine("Please provide an expression to filter with.");
+                HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
                 return false;
             }
 
-            var type = terms[0];
             var query = string.Join(' ', terms.Skip(1)).Trim('"');
 
             using (var sr = new StringReader(stdIn.ToString()))
@@ -37,17 +37,7 @@ namespace ITPIE.CLI.Commands
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    switch (type)
-                    {
-                        case "in":
-                        case "grep":
-                            HandleContains(query, line);
-                            break;
-
-                        case "re":
-                            HandleRegex(query, line);
-                            break;
-                    }
+                    HandleRegex(query, line);
                 }
             }
             return true;
@@ -56,14 +46,6 @@ namespace ITPIE.CLI.Commands
         private static void HandleRegex(string query, string line)
         {
             if (Regex.IsMatch(line, query))
-            {
-                Console.WriteLine(line);
-            }
-        }
-
-        private static void HandleContains(string query, string line)
-        {
-            if (line.Contains(query))
             {
                 Console.WriteLine(line);
             }
@@ -80,16 +62,13 @@ namespace ITPIE.CLI.Commands
                 new Help{
                     Command = "grep|in|re",
                     Description = new List<string>{
-                        "Used in conjunction with pipe, it allows you to filter results.",
-                        "  Currently supported commands:",
-                        "   - 'grep|in' are the same and do a simple contains check for the value.",
-                        "   - 're' will perform a Regular Expression match.",
-                        "  Both will support quoting the value.  the 're' command will allow ",
-                        "    the '|' character only if the expresssion is quoted.",
+                        "Used in conjunction with pipe, it allows you to filter results using regular expressions.",
+                        "  Aliases:",
+                        "   in | re",
+                        "  The '|' character is supported only if the expresssion is quoted.",
                         "  Examples:",
-                        "   - find device * | in 10.10.10.10",
-                        "   - find device * | re \\d+30",
-                        "   - find device * | re \"Cisco|Juniper\"",
+                        "   - find device * | grep 10.10.10.10",
+                        "   - find device * | grep \"Cisco|Juniper\"",
                     }
                 }
             };

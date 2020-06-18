@@ -22,8 +22,8 @@ namespace ITPIE.CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            string user = this.GetUser();
-            string pass = this.GetPass();
+            var user = this.GetUser();
+            var pass = this.GetPass();
 
             var did_login = await this.DoLogin(user, pass);
             if (!did_login)
@@ -60,7 +60,7 @@ namespace ITPIE.CLI.Commands
         public string GetPass()
         {
             var pass = string.Empty;
-            var env_pass = GetEnvPass();
+            var env_pass = this.GetEnvPass();
             if (env_pass != null)
             {
                 pass = env_pass;
@@ -81,6 +81,7 @@ namespace ITPIE.CLI.Commands
                 }
             }
 
+            this.stack.Peek().Variables[Constants.Pass] = pass;
             return pass;
         }
 
@@ -91,20 +92,24 @@ namespace ITPIE.CLI.Commands
 
         public string GetUser()
         {
-            var env_user = GetEnvUser();
+            var env_user = this.GetEnvUser();
+            string user;
             if (env_user != null)
             {
-                return env_user;
+                user = env_user;
             }
             else if (this.stack.Peek().Variables.ContainsKey(Constants.User))
             {
-                return this.stack.Peek().Variables[Constants.User].ToString();
+                user = this.stack.Peek().Variables[Constants.User].ToString();
             }
             else
             {
                 Console.Write("Username: ");
-                return Console.ReadLine();
+                user = Console.ReadLine();
             }
+
+            this.stack.Peek().Variables[Constants.User] = user;
+            return user;
         }
 
         public string GetEnvUser()
@@ -140,9 +145,6 @@ namespace ITPIE.CLI.Commands
             }
             var token = await response.Content.ReadAsAsync<Token>();
             this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.SignedToken);
-
-            ctx.Variables[Constants.User] = user;
-            ctx.Variables[Constants.Pass] = pass;
 
             return true;
         }

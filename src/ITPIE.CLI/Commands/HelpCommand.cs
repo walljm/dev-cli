@@ -51,22 +51,17 @@ namespace ITPIE.CLI.Commands
                 Console.WriteLine();
             }
 
-            foreach (var command in commands.OrderBy(c => c.Name))
+            foreach (var command in commands)
             {
                 var helps = command.GetHelp();
                 foreach (var help in helps)
                 {
                     Console.WriteLine($"{spacer}{help.Command.PadRight(cWidth)}{spacer}{help.Description.First()}");
-                    var more = false;
                     foreach (var desc in help.Description.Skip(1))
                     {
-                        more = true;
                         Console.WriteLine($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}{desc}");
                     }
-                    if (more)
-                    {
-                        Console.WriteLine();
-                    }
+                    Console.WriteLine();
                 }
             }
             if (printExit)

@@ -43,13 +43,12 @@ namespace ITPIE.CLI.Commands
                 Prompt = "itpie#",
                 Commands = new List<ICommand>
                 {
+                    new HelpCommand(this.stack),
                     new PipeCommand(this.stack),
                     new GrepCommand(),
                     new FindCommand(this.stack, this.client),
                     new SetCommand(this.stack),
-                    new EnvCommand(this.stack),
-                    new HelpCommand(this.stack),
-                    new AboutCommand()
+                    new AboutCommand(this.stack)
                 },
                 Variables = this.stack.Peek().Variables // transfer the variables.
             };

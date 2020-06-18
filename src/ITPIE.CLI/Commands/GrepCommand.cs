@@ -60,15 +60,17 @@ namespace ITPIE.CLI.Commands
         {
             return new Help[]{
                 new Help{
-                    Command = "grep|in|re",
+                    Command = "grep",
                     Description = new List<string>{
                         "Used in conjunction with pipe, it allows you to filter results using regular expressions.",
-                        "  Aliases:",
-                        "   in | re",
                         "  The '|' character is supported only if the expresssion is quoted.",
-                        "  Examples:",
-                        "   - find device * | grep 10.10.10.10",
-                        "   - find device * | grep \"Cisco|Juniper\"",
+                        "",
+                        "Aliases:",
+                        "  in | re",
+                        "",
+                        "Examples:",
+                        " - find device * | grep 10.10.10.10",
+                        " - find device * | grep \"Cisco|Juniper\"",
                     }
                 }
             };

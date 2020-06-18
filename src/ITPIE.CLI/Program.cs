@@ -64,6 +64,18 @@ namespace ITPIE.CLI
                 if (!did_login)
                     return;
             }
+            // say hello to the user.
+            var welcome = new List<string>
+            {
+                "Welcome to the ITPIE CLI!",
+            };
+            foreach (var str in welcome)
+            {
+                Console.WriteLine(str);
+            }
+            var about = stack.Peek().GetCommand<AboutCommand>();
+            await about.Run(about.Name);
+            Console.WriteLine();
 
             // enter the interactive loop.
             while (true)
@@ -113,11 +125,10 @@ namespace ITPIE.CLI
                 Prompt = "itpie>",
                 Commands = new List<ICommand>
                 {
+                    new HelpCommand(stack),
                     new LoginCommand(stack, client),
                     new SetCommand(stack),
-                    new EnvCommand(stack),
-                    new HelpCommand(stack),
-                    new AboutCommand()
+                    new AboutCommand(stack)
                 },
                 Variables = new Dictionary<string, object>()
             };

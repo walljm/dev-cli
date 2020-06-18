@@ -1,0 +1,49 @@
+.dotnet:
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    variables:
+        DOTNET_CONFIGURATION: Release
+        DOTNET_OUTPUT: dist
+    before_script:
+        - uname -a
+        - dotnet --info
+    artifacts:
+        paths:
+            - $DOTNET_OUTPUT
+
+build:
+    extends: .dotnet
+    stage: build
+    script:
+        - dotnet tool restore
+        - dotnet build -bl
+        - dotnet test -l:trx
+    after_script:
+        - dotnet trx2junit test/**/TestResults/*.trx
+    artifacts:
+        paths:
+            - msbuild.binlog
+        reports:
+            junit: test/**/TestResults/*.xml
+
+.publish:
+    extends: .dotnet
+    stage: build
+    # variables:
+        # DOTNET_RUNTIME_ID: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+    script:
+        - dotnet publish -c $DOTNET_CONFIGURATION -o $DOTNET_OUTPUT -r $DOTNET_RUNTIME_ID src/ITPIE.CLI
+
+linux-x64:
+    extends: .publish
+    variables:
+        DOTNET_RUNTIME_ID: linux-x64
+
+osx-x64:
+    extends: .publish
+    variables:
+        DOTNET_RUNTIME_ID: osx-x64
+
+win-x64:
+    extends: .publish
+    variables:
+        DOTNET_RUNTIME_ID: win-x64

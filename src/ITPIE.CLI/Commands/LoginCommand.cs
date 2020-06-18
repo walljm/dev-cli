@@ -43,6 +43,8 @@ namespace ITPIE.CLI.Commands
                 Prompt = "itpie#",
                 Commands = new List<ICommand>
                 {
+                    new PipeCommand(this.stack),
+                    new GrepCommand(),
                     new FindCommand(this.stack, this.client),
                     new SetCommand(this.stack),
                     new EnvCommand(this.stack),

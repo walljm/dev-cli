@@ -71,7 +71,7 @@ namespace ITPIE.CLI.Commands
             }
             if (printExit)
             {
-                Console.WriteLine($"{spacer}{"exit".PadRight(cWidth)}{spacer}Exits the cli application");
+                Console.WriteLine($"{spacer}{"exit".PadRight(cWidth)}{spacer}Exits the CLI application");
             }
             Console.WriteLine();
         }

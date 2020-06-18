@@ -22,11 +22,6 @@ namespace ITPIE.CLI.Commands
             this.stack = stack;
         }
 
-        public bool Match(string cmd)
-        {
-            return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
-        }
-
         public async Task<bool> Run(string cmd)
         {
             var terms = cmd.Split(' ');
@@ -281,6 +276,11 @@ namespace ITPIE.CLI.Commands
             }
         }
 
+        public bool Match(string cmd)
+        {
+            return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
+        }
+
         public Help[] GetHelp()
         {
             return new Help[]{
@@ -290,6 +290,9 @@ namespace ITPIE.CLI.Commands
                     Description = new List<string>
                     {
                         "Intelligently search for specific types of information on your network.",
+                        "",
+                        "Aliases:",
+                        "  show | display",
                         "",
                         "Sub Commands:",
                         "  find device <ip|hostname|network>",

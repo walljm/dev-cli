@@ -48,7 +48,8 @@ namespace ITPIE.CLI.Commands
                     new FindCommand(this.stack, this.client),
                     new SetCommand(this.stack),
                     new EnvCommand(this.stack),
-                    new HelpCommand(this.stack)
+                    new HelpCommand(this.stack),
+                    new AboutCommand()
                 },
                 Variables = this.stack.Peek().Variables // transfer the variables.
             };

@@ -4,7 +4,7 @@ namespace ITPIE.CLI
 {
     public class CommandLineOptions
     {
-        [Option('c', "command", Required = false, HelpText = "If used will run the command and output the result without entering cli mode.")]
+        [Option('c', "command", Required = false, HelpText = "If used will run the command and output the result without entering CLI mode.")]
         public string Command { get; set; }
 
         [Option('u', "user", Required = false, HelpText = "The user to login with.")]

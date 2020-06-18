@@ -116,7 +116,8 @@ namespace ITPIE.CLI
                     new LoginCommand(stack, client),
                     new SetCommand(stack),
                     new EnvCommand(stack),
-                    new HelpCommand(stack)
+                    new HelpCommand(stack),
+                    new AboutCommand()
                 },
                 Variables = new Dictionary<string, object>()
             };

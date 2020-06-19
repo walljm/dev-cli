@@ -107,9 +107,12 @@ namespace ITPIE.CLI
             }
             else
             {
-                Console.WriteLine($"You must provide an ITPIE API url.  You can either set the {Constants.EnvironmentItpieUrlVarName} " +
-                    $"environment variable or use the commandline flag: -i or --itpieUrl");
-                return false;
+                Console.WriteLine("You must provide an ITPIE API url.  You can avoid this prompt by either");
+                Console.WriteLine($" setting the {Constants.EnvironmentItpieUrlVarName} environment variable");
+                Console.WriteLine("  or by using the commandline flag: -i or --itpieUrl");
+                Console.Write("Please type the url of the ITPIE API (e.g https://youritpieserver.com/api): ");
+                var url = Console.ReadLine();
+                stack.Peek().Variables[Constants.ItpieUrl] = url;
             }
             return true;
         }

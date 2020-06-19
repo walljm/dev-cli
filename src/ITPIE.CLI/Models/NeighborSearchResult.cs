@@ -8,6 +8,7 @@ namespace ITPIE.CLI.Models
 
         public string DiscoveryType { get; set; }
 
+        [ColumnDisplay(Display = false)]
         public int RemoteDeviceId { get; set; }
 
         public string RemoteDeviceIp { get; set; }
@@ -23,10 +24,25 @@ namespace ITPIE.CLI.Models
         public string RemoteVendor { get; set; }
 
         public string RemoteModel { get; set; }
-
+        
+        [ColumnDisplay(Name = "Remote OS")]
         public string RemoteOsName { get; set; }
 
-        public string RemoteOsVersion { get; set; }
+        private string _RemoteOsVersion { get; set; }
+        
+        [ColumnDisplay(Name = "Remote OS Version")]
+        public string RemoteOsVersion
+        {
+            get
+            {
+                if (this._RemoteOsVersion.Length > 50)
+                {
+                    return this._RemoteOsVersion.Substring(0, 50);
+                }
+                return this._RemoteOsVersion;
+            }
+            set { this._RemoteOsVersion = value; }
+        }
 
         public bool RemoteIsUnmanaged { get; set; }
 

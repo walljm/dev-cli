@@ -9,12 +9,6 @@ namespace ITPIE.CLI.Models
 
         public int DisplayIndex { get; set; } = int.MaxValue;
 
-        public Formatters Formatter { get; set; } = Formatters.None;
-    }
-
-    public enum Formatters
-    {
-        Interval,
-        None
+        public bool Display {get;set;} = true;
     }
 }

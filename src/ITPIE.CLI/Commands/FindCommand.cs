@@ -107,9 +107,11 @@ namespace ITPIE.CLI.Commands
 
         public async Task HandleArp(string obj, string opt)
         {
+            var history = TermBuilder.Build("history", 4); // also an option
+
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/arp?term={obj}";
-            if (opt == "history")
+            if (history.Is(opt))
             {
                 url = $"{itpieUrl}/arp/history?term={obj}";
             }
@@ -132,8 +134,10 @@ namespace ITPIE.CLI.Commands
 
         public async Task HandleStp(string obj, string opt)
         {
+            var ifc = TermBuilder.Build("interface", 3, new[] { TermBuilder.Build("port", 4), TermBuilder.Build("ifc", 3) }); // also an option
+
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
-            if (opt == "interface")
+            if (ifc.Is(opt))
             {
                 var url = $"{itpieUrl}/arp/interface?term={obj}";
                 await this.HandleResponse<StpInterfaceSearchResult>(url);
@@ -148,13 +152,16 @@ namespace ITPIE.CLI.Commands
 
         public async Task HandleVlan(string obj, string opt)
         {
+            var ifc = TermBuilder.Build("interface", 3, new[] { TermBuilder.Build("port", 4), TermBuilder.Build("ifc", 3) }); // also an option
+            var detail = TermBuilder.Build("detail", 3); // also an option
+
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
-            if (opt == "interface")
+            if (ifc.Is(opt))
             {
                 var url = $"{itpieUrl}/vlan/interface?term={obj}";
                 await this.HandleResponse<VlanSearchInterfaceResult>(url);
             }
-            else if (opt == "detail")
+            else if (detail.Is(opt))
             {
                 var url = $"{itpieUrl}/vlan/detail?term={obj}";
                 await this.HandleResponse<VlanSearchDetailResult>(url);
@@ -168,9 +175,11 @@ namespace ITPIE.CLI.Commands
 
         public async Task HandleVrf(string obj, string opt)
         {
+            var loopback = TermBuilder.Build("loopback", 4); // also an option
+
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/vrf?term={obj}";
-            if (opt == "loopback")
+            if (loopback.Is(opt))
             {
                 url = $"{itpieUrl}/vrf/loopback?term={obj}";
             }
@@ -180,10 +189,12 @@ namespace ITPIE.CLI.Commands
 
         public async Task HandleRoute(string obj, string opt)
         {
+            var vrf = TermBuilder.Build("vrf", 3); // also an option
+
             var itpieUrl = $"{this.stack.Peek().Variables[Constants.ItpieUrl]}/search";
             var url = $"{itpieUrl}/route?term={obj}&option={opt}";
 
-            if (opt == "vrf")
+            if (vrf.Is(opt))
             {
                 url = $"{itpieUrl}/route/vrf?term={obj}&option={opt}";
             }
@@ -196,22 +207,12 @@ namespace ITPIE.CLI.Commands
             public int Width { get; set; }
             public string Name { get; set; }
             public PropertyInfo Info { get; set; }
-            public Formatters Formatter { get; set; }
             public int DisplayIndex { get; set; }
+            public bool Display { get; set; }
 
             public string GetValue(object o)
             {
-                if (this.Formatter == Formatters.Interval)
-                {
-                    var v = this.Info.GetValue(o);
-                    if (v == null)
-                        return "null";
-                    return new TimeSpan(((long)v * 10000000)).ToString();
-                }
-                else
-                {
-                    return this.Info.GetValue(o)?.ToString() ?? "null";
-                }
+                return this.Info.GetValue(o)?.ToString() ?? "null";
             }
         }
 
@@ -260,11 +261,12 @@ namespace ITPIE.CLI.Commands
                         Info = propInfo,
                         Name = attribute?.Name ?? propInfo.Name.SpaceByCamelCase(),
                         DisplayIndex = attribute?.DisplayIndex ?? int.MaxValue,
-                        Formatter = attribute?.Formatter ?? Formatters.None,
-                        Width = 0
+                        Width = 0,
+                        Display = attribute?.Display ?? true
                     };
                 })
-                .OrderBy(info => info.DisplayIndex)
+                .Where(o => o.Display)
+                .OrderBy(o => o.DisplayIndex)
                 .ToList();
 
             foreach (var prop in fArray)
@@ -280,14 +282,14 @@ namespace ITPIE.CLI.Commands
             // column headers.
             foreach (var prop in fArray)
             {
-                Console.Write(prop.Name.PadRight(prop.Width + 2));
+                Console.Write($" {prop.Name.PadRight(prop.Width + 2)}");
             }
             Console.WriteLine();
 
             // column divider
             foreach (var prop in fArray)
             {
-                Console.Write($"{string.Empty.PadRight(prop.Width, '-')}  ");
+                Console.Write($" {string.Empty.PadRight(prop.Width, '-')}  ");
             }
             Console.WriteLine();
 
@@ -297,12 +299,12 @@ namespace ITPIE.CLI.Commands
                 foreach (var prop in fArray)
                 {
                     var v = prop.GetValue(d);
-                    Console.Write(v.PadRight(prop.Width + 2));
+                    Console.Write($" {v.PadRight(prop.Width + 2)}");
                 }
                 Console.WriteLine();
             }
             Console.WriteLine();
-            Console.WriteLine($"Total Rows: {c.Items.Count}");
+            Console.WriteLine($" Total Rows: {c.Items.Count}");
             Console.WriteLine();
         }
 

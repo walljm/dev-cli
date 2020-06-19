@@ -9,9 +9,11 @@ namespace ITPIE.CLI.Models
         public string Vendor { get; set; }
 
         public string ManufacturerType { get; set; }
-
+        
+        [ColumnDisplay(Name = "OS")]
         public string OsName { get; set; }
-
+        
+        [ColumnDisplay(Name = "OS Version")]
         public string OsVersion { get; set; }
 
         public long InstanceId { get; set; }

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ITPIE.CLI
+namespace ITPIE.CLI.Models
 {
     public class ProblemDetails
     {

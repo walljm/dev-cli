@@ -22,7 +22,16 @@ namespace ITPIE.CLI.Models
 
         public string OperStatus { get; set; }
 
+        [ColumnDisplay(Display = false)]
         public long StatusIntervalSeconds { get; set; }
+
+        public string StatusInterval
+        {
+            get
+            {
+                return new TimeSpan(this.StatusIntervalSeconds * 10000000).ToString();
+            }
+        }
 
         public DateTimeOffset FirstSeen { get; set; }
 

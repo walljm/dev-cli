@@ -2,8 +2,12 @@
 {
     public class VrfSearchResult : SearchResult
     {
+        [ColumnDisplay(Name = "VRF")]
         public string VrfName { get; set; }
+
+        [ColumnDisplay(Name = "RD")]
         public string Rd { get; set; }
+
         public string InterfaceName { get; set; }
         public string InterfaceDescription { get; set; }
 

@@ -10,17 +10,26 @@ namespace ITPIE.CLI.Models
         [ColumnDisplay(DisplayIndex = 3)]
         public string Model { get; set; }
 
-        [ColumnDisplay(DisplayIndex = 4)]
+        [ColumnDisplay(DisplayIndex = 4, Name = "OS")]
         public string OsName { get; set; }
 
-        [ColumnDisplay(DisplayIndex = 5)]
+        [ColumnDisplay(DisplayIndex = 5, Name = "OS Version")]
         public string OsVersion { get; set; }
 
         [ColumnDisplay(DisplayIndex = 6)]
         public string ManufacturerType { get; set; }
 
-        [ColumnDisplay(DisplayIndex = 7, Name = "System Uptime (Seconds)", Formatter = Formatters.Interval)]
+        [ColumnDisplay(Display = false)]
         public long SysUptimeSeconds { get; set; }
+
+        [ColumnDisplay(DisplayIndex = 7, Name = "System Uptime")]
+        public string SystemUptime
+        {
+            get
+            {
+                return new TimeSpan(this.SysUptimeSeconds * 10000000).ToString();
+            }
+        }
 
         [ColumnDisplay(DisplayIndex = 8)]
         public DateTimeOffset FirstSeen { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -13,12 +14,21 @@ namespace ITPIE.CLI
         private static async Task Main(string[] args)
         {
             CommandLineOptions opts = null;
+            bool stop = false;
             Parser.Default
                 .ParseArguments<CommandLineOptions>(args)
                 .WithParsed(options =>
                 {
                     opts = options;
+                }).WithNotParsed(errors =>
+                {
+                    stop = errors.Any(e => e.StopsProcessing);
                 });
+
+            if (stop)
+            {
+                return;
+            }
 
             var stack = initStack();
             if (!setItpieUrl(stack, opts))

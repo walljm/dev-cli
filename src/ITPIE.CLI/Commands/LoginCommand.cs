@@ -15,7 +15,7 @@ namespace ITPIE.CLI.Commands
         private readonly Stack<Context> stack;
         private HttpClient client;
 
-        public LoginCommand(Stack<Context> stack, string handleAllCerts = "")
+        public LoginCommand(Stack<Context> stack, bool handleAllCerts = false)
         {
             this.stack = stack;
             this.HandleAcceptAllCertificates(handleAllCerts);
@@ -118,9 +118,9 @@ namespace ITPIE.CLI.Commands
             return Environment.GetEnvironmentVariable(Constants.EnvironmentUsernameVarName);
         }
 
-        public void HandleAcceptAllCertificates(string val)
+        public void HandleAcceptAllCertificates(bool acceptAllCerts)
         {
-            if (val.ToLower() == "true")
+            if (acceptAllCerts)
             {
                 var handler = new SocketsHttpHandler
                 {

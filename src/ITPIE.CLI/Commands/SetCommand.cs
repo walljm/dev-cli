@@ -36,7 +36,13 @@ namespace ITPIE.CLI.Commands
             if (varname == Constants.AcceptAllCertificatesCommand)
             {
                 var loginCommand = this.stack.Peek().GetCommand<LoginCommand>();
-                loginCommand.HandleAcceptAllCertificates(val);
+                if (!bool.TryParse(val, out bool acceptAllCerts))
+                {
+                    Console.WriteLine($"The value {val} is not valid.  Please use 'true' or 'false'");
+                    return false;
+                }
+
+                loginCommand.HandleAcceptAllCertificates(acceptAllCerts);
             }
 
             return true;

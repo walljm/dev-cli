@@ -13,5 +13,6 @@
         public const string EnvironmentUsernameVarName = "ITPIE_CLI_USERNAME";
         public const string EnvironmentItpieUrlVarName = "ITPIE_CLI_URL";
         public const string EnvironmentAcceptAllCertificates = "ITPIE_ACCEPT_ALL_CERTIFICATES";
+        public const string EnvironmentOutputAsJson = "ITPIE_CLI_OUTPUT_TYPE";
     }
 }

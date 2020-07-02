@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ITPIE.CLI.Commands.Find;
 using ITPIE.CLI.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ITPIE.CLI.Commands
 {
@@ -21,6 +23,11 @@ namespace ITPIE.CLI.Commands
         {
             this.client = client;
             this.stack = stack;
+
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
         }
 
         public async Task<bool> Run(string cmd)
@@ -249,8 +256,18 @@ namespace ITPIE.CLI.Commands
             Console.WriteLine($"An Error occurred while speaking to the api: {r.StatusCode} {r.ReasonPhrase}\n{err}");
         }
 
-        private static void WriteResponse<T>(PagedResponse<T> c)
+        private void WriteResponse<T>(PagedResponse<T> c)
         {
+            if (
+                this.stack.Peek().Variables.ContainsKey(Constants.EnvironmentOutputAsJson)
+                &&
+                (bool)this.stack.Peek().Variables[Constants.EnvironmentOutputAsJson]
+            )
+            {
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(c.Items, Newtonsoft.Json.Formatting.Indented));
+                return;
+            }
+
             var fArray = typeof(T)
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Select(propInfo =>

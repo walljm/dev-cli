@@ -18,12 +18,13 @@ namespace ITPIE.CLI
                 .WithParsed(options =>
                 {
                     opts = options;
-                }).WithNotParsed(errors =>
+                })
+                .WithNotParsed(errors =>
                 {
                     stop = errors.Any(e => e.StopsProcessing);
                 });
 
-            if (stop)
+            if (stop || opts == null)
             {
                 return;
             }
@@ -58,6 +59,12 @@ namespace ITPIE.CLI
 
                 // you survived login, now run the command.
                 var authorizedContext = login.InitAuthorizedContext(); // initialize the logged in context.
+                var env_as_json = Environment.GetEnvironmentVariable(Constants.EnvironmentOutputAsJson);
+                if (env_as_json == true.ToString() || opts.OutputAsJson)
+                {
+                    authorizedContext.Variables[Constants.EnvironmentOutputAsJson] = true;
+                }
+
                 await authorizedContext.HandleCommand(opts.Command);
 
                 return;
@@ -127,15 +134,15 @@ namespace ITPIE.CLI
 
         private static Stack<Context> initStack(CommandLineOptions opts)
         {
-            var handleAllCerts = string.Empty;
-            if (opts.AcceptAllCertificates != null)
+            var handleAllCerts = false;
+            if (opts.AcceptAllCertificates)
             {
                 handleAllCerts = opts.AcceptAllCertificates;
             }
             var env_accept_all_certificates = Environment.GetEnvironmentVariable(Constants.EnvironmentAcceptAllCertificates);
             if (env_accept_all_certificates != null)
             {
-                handleAllCerts = env_accept_all_certificates;
+                handleAllCerts = env_accept_all_certificates == true.ToString();
             }
 
             var stack = new Stack<Context>();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Threading.Tasks;
 using ITPIE.CLI.Models;
 
@@ -12,12 +13,12 @@ namespace ITPIE.CLI.Commands
     {
         public string Name { get { return "login"; } }
         private readonly Stack<Context> stack;
-        private readonly HttpClient client;
+        private HttpClient client;
 
-        public LoginCommand(Stack<Context> stack, HttpClient client)
+        public LoginCommand(Stack<Context> stack, string handleAllCerts = "")
         {
             this.stack = stack;
-            this.client = client;
+            this.HandleAcceptAllCertificates(handleAllCerts);
         }
 
         public async Task<bool> Run(string cmd)
@@ -117,36 +118,72 @@ namespace ITPIE.CLI.Commands
             return Environment.GetEnvironmentVariable(Constants.EnvironmentUsernameVarName);
         }
 
+        public void HandleAcceptAllCertificates(string val)
+        {
+            if (val.ToLower() == "true")
+            {
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new SslClientAuthenticationOptions
+                    {
+                        RemoteCertificateValidationCallback = new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) =>
+                        {
+                            return true;
+                        })
+                    }
+                };
+                this.client = new HttpClient(handler);
+                this.client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
+            else
+            {
+                this.client = new HttpClient();
+                this.client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
+        }
+
         public async Task<bool> DoLogin(string user, string pass)
         {
             var ctx = this.stack.Peek();
             var itpieUrl = ctx.Variables[Constants.ItpieUrl].ToString().TrimEnd('/');
-            var response = await this.client.PostAsJsonAsync($"{itpieUrl}/authentication/login",
-                new LocalLoginRequest
-                {
-                    Email = user,
-                    Password = pass
-                });
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                var c = await response.Content.ReadAsStringAsync();
-                var d = Newtonsoft.Json.JsonConvert.DeserializeObject<ProblemDetails>(c);
-                Console.WriteLine();
-                Console.WriteLine("Unable to login.");
-                foreach (var ext in d.Extensions.Where(kvp => kvp.Key == "errors"))
-                {
-                    var dict = ((Newtonsoft.Json.Linq.JObject)ext.Value).ToObject<Dictionary<string, string[]>>();
-                    foreach (var msg in dict.SelectMany(o => o.Value))
+                var response = await this.client.PostAsJsonAsync($"{itpieUrl}/authentication/login",
+                    new LocalLoginRequest
                     {
-                        Console.WriteLine(msg);
+                        Email = user,
+                        Password = pass
+                    });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var c = await response.Content.ReadAsStringAsync();
+                    var d = Newtonsoft.Json.JsonConvert.DeserializeObject<ProblemDetails>(c);
+                    Console.WriteLine();
+                    Console.WriteLine("Unable to login.");
+                    foreach (var ext in d.Extensions.Where(kvp => kvp.Key == "errors"))
+                    {
+                        var dict = ((Newtonsoft.Json.Linq.JObject)ext.Value).ToObject<Dictionary<string, string[]>>();
+                        foreach (var msg in dict.SelectMany(o => o.Value))
+                        {
+                            Console.WriteLine(msg);
+                        }
                     }
+                    return false;
+                }
+                var token = await response.Content.ReadAsAsync<Token>();
+                this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.SignedToken);
+                return true;
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.InnerException is System.Security.Authentication.AuthenticationException)
+                {
+                    Console.WriteLine($"ERROR: {ex.InnerException.Message}");
+                    Console.WriteLine($"To accept invalid certificates, set the {Constants.AcceptAllCertificatesCommand} variable to 'true'");
                 }
                 return false;
             }
-            var token = await response.Content.ReadAsAsync<Token>();
-            this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.SignedToken);
-
-            return true;
         }
 
         public bool Match(string cmd)

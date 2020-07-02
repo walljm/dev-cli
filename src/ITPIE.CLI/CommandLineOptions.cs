@@ -12,5 +12,8 @@ namespace ITPIE.CLI
 
         [Option('i', "itpieUrl", Required = false, HelpText = "The url of the itpie server to use for your queries.")]
         public string ItpieUrl { get; set; }
+
+        [Option('x', "acceptAllCertificates", Required = false, HelpText = "If you're ITPIE server is using a self signed cert, this will allow interaction.")]
+        public string AcceptAllCertificates { get; set; }
     }
 }

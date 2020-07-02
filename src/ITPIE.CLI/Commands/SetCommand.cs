@@ -29,9 +29,14 @@ namespace ITPIE.CLI.Commands
             var varname = terms[1];
             var val = terms[2];
 
-            if (varname == Constants.ItpieUrl)
+            if (varname == Constants.ItpieUrlCommand)
             {
                 ctx.Variables[varname] = val.TrimEnd('/'); // trim trialing slashes because we don't want them.
+            }
+            if (varname == Constants.AcceptAllCertificatesCommand)
+            {
+                var loginCommand = this.stack.Peek().GetCommand<LoginCommand>();
+                loginCommand.HandleAcceptAllCertificates(val);
             }
 
             return true;
@@ -47,10 +52,18 @@ namespace ITPIE.CLI.Commands
             return new Help[]{
                 new Help
                 {
-                    Command = $"set {Constants.ItpieUrl} <api url>",
+                    Command = $"set {Constants.ItpieUrlCommand} <api url>",
                     Description = new List<string>
                     {
-                        "Sets the ITPIE api endpoint url e.g. https://itpie.yourdomain.com/api"
+                        "Sets the ITPIE api endpoint url e.g. https://itpie.yourdomain.com/"
+                    }
+                },
+                new Help
+                {
+                    Command = $"set {Constants.AcceptAllCertificatesCommand} true|false",
+                    Description = new List<string>
+                    {
+                        "When true, allows the CLI to interact with itpie instances without valid certificates."
                     }
                 }
             };

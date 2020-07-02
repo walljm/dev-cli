@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CommandLine;
 using ITPIE.CLI.Commands;
@@ -30,7 +28,8 @@ namespace ITPIE.CLI
                 return;
             }
 
-            var stack = initStack();
+            var stack = initStack(opts);
+
             if (!setItpieUrl(stack, opts))
             {
                 return; // you can't do anything without an itpie api url to work against.
@@ -64,16 +63,6 @@ namespace ITPIE.CLI
                 return;
             }
 
-            // if the user and pass environment vars are set, just log the user in already.
-            var lc = stack.Peek().GetCommand<LoginCommand>();
-            var u = lc.GetEnvUser();
-            var p = lc.GetEnvPass();
-            if (u != null && p != null)
-            {
-                var did_login = await lc.Run(lc.Name);
-                if (!did_login)
-                    return;
-            }
             // say hello to the user.
             var welcome = new List<string>
             {
@@ -86,6 +75,15 @@ namespace ITPIE.CLI
             var about = stack.Peek().GetCommand<AboutCommand>();
             await about.Run(about.Name);
             Console.WriteLine();
+
+            // if the user and pass environment vars are set, just log the user in already.
+            var lc = stack.Peek().GetCommand<LoginCommand>();
+            var u = lc.GetEnvUser();
+            var p = lc.GetEnvPass();
+            if (u != null && p != null)
+            {
+                await lc.Run(lc.Name);
+            }
 
             // enter the interactive loop.
             while (true)
@@ -109,28 +107,36 @@ namespace ITPIE.CLI
 
             if (opts.ItpieUrl != null)
             {
-                stack.Peek().Variables[Constants.ItpieUrl] = opts.ItpieUrl;
+                stack.Peek().Variables[Constants.ItpieUrl] = $"{opts.ItpieUrl}/api";
             }
             else if (env_itpie_url != null)
             {
-                stack.Peek().Variables[Constants.ItpieUrl] = env_itpie_url;
+                stack.Peek().Variables[Constants.ItpieUrl] = $"{env_itpie_url}/api";
             }
             else
             {
                 Console.WriteLine("You must provide an ITPIE API url.  You can avoid this prompt by either");
                 Console.WriteLine($" setting the {Constants.EnvironmentItpieUrlVarName} environment variable");
                 Console.WriteLine("  or by using the commandline flag: -i or --itpieUrl");
-                Console.Write("Please type the url of the ITPIE API (e.g https://youritpieserver.com/api): ");
+                Console.Write("Please type the url of the ITPIE API (e.g https://youritpieserver.com/): ");
                 var url = Console.ReadLine();
-                stack.Peek().Variables[Constants.ItpieUrl] = url;
+                stack.Peek().Variables[Constants.ItpieUrl] = $"{url}/api";
             }
             return true;
         }
 
-        private static Stack<Context> initStack()
+        private static Stack<Context> initStack(CommandLineOptions opts)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var handleAllCerts = string.Empty;
+            if (opts.AcceptAllCertificates != null)
+            {
+                handleAllCerts = opts.AcceptAllCertificates;
+            }
+            var env_accept_all_certificates = Environment.GetEnvironmentVariable(Constants.EnvironmentAcceptAllCertificates);
+            if (env_accept_all_certificates != null)
+            {
+                handleAllCerts = env_accept_all_certificates;
+            }
 
             var stack = new Stack<Context>();
             var loginContext = new Context
@@ -139,12 +145,13 @@ namespace ITPIE.CLI
                 Commands = new List<ICommand>
                 {
                     new HelpCommand(stack),
-                    new LoginCommand(stack, client),
+                    new LoginCommand(stack, handleAllCerts),
                     new SetCommand(stack),
                     new AboutCommand(stack)
                 },
                 Variables = new Dictionary<string, object>()
             };
+
             stack.Push(loginContext);
             return stack;
         }

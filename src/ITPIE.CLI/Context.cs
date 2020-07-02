@@ -16,6 +16,12 @@ namespace ITPIE.CLI
         public async Task HandleCommand(string str)
         {
             var cmd = str.TrimStart();
+
+            if (cmd== string.Empty)
+            {
+                return;  // handle empty commands.
+            }
+
             foreach (var command in this.Commands.Where(c => c is PipeCommand)) // handle the pipe command first, always.
             {
                 if (command.Match(cmd))

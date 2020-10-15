@@ -2,24 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ITPIE.CLI.Models;
+using CLI.Models;
 
-namespace ITPIE.CLI.Commands
+#pragma warning disable 1998
+
+namespace CLI.Commands
 {
-    public class HelpCommand : ICommand
+    public class HelpCommand : CommandBase, ICommand
     {
-        public string Name { get { return "help"; } }
-        private string[] aliases { get { return new[] { "?" }; } }
-        private readonly Stack<Context> stack;
+        public override string Name { get { return "help"; } }
+        public override string[] Aliases { get { return new[] { "?" }; } }
 
-        public HelpCommand(Stack<Context> stack)
+        public HelpCommand(ContextStack stack)
         {
             this.stack = stack;
         }
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Peek();
+            var ctx = this.stack.Current;
             WriteHelp(ctx.Commands);
             return true;
         }
@@ -69,11 +70,6 @@ namespace ITPIE.CLI.Commands
                 Console.WriteLine($"{spacer}{"exit".PadRight(cWidth)}{spacer}Exits the CLI application");
             }
             Console.WriteLine();
-        }
-
-        public bool Match(string cmd)
-        {
-            return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
         }
 
         public Help[] GetHelp()

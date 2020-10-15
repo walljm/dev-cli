@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ITPIE.CLI.Models;
+using CLI.Models;
 
-namespace ITPIE.CLI.Commands
+#pragma warning disable 1998
+
+namespace CLI.Commands
 {
-    public class AboutCommand : ICommand
+    public class AboutCommand : CommandBase, ICommand
     {
-        public string Name { get { return "about"; } }
-        private string[] aliases { get { return new[] { "version", "system" }; } }
-        private readonly Stack<Context> stack;
+        public override string Name { get { return "about"; } }
+        public override string[] Aliases { get { return new[] { "version", "system" }; } }
 
-        public AboutCommand(Stack<Context> stack)
+        public AboutCommand(ContextStack stack)
         {
             this.stack = stack;
         }
@@ -25,14 +25,9 @@ namespace ITPIE.CLI.Commands
             Console.WriteLine();
             Console.WriteLine("  System Information:");
             Console.WriteLine("  ---------------------------------------------");
-            var ctx = this.stack.Peek();
-            var kWidth = ctx.Variables.Max(kvp => kvp.Key.Length);
-
-            foreach (var kvp in ctx.Variables.Where(kvp => kvp.Key != Constants.Pass))
-            {
-                Console.WriteLine($"  {kvp.Key.PadLeft(kWidth)}: {kvp.Value}");
-            }
-            Console.WriteLine($"  {"Version".PadLeft(kWidth)}: {fvi.ProductVersion}");
+            this.stack.Current.PrintEnvironment();
+            Console.WriteLine();
+            Console.WriteLine($"  {"Version"}: {fvi.ProductVersion}");
 
             Console.WriteLine();
             return true;
@@ -45,23 +40,18 @@ namespace ITPIE.CLI.Commands
             return fvi;
         }
 
-        public bool Match(string cmd)
-        {
-            return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
-        }
-
         public Help[] GetHelp()
         {
             return new Help[]{
                 new Help
                 {
-                    Command = $"about",
+                    Command = $"{this.Name}",
                     Description = new List<string>
                     {
                         "Show the current CLI version and other system info.",
                         "",
                         "Aliases:",
-                        "  version | system",
+                        $"  {string.Join(" | ", this.Aliases)}",
                     }
                 }
             };

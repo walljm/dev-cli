@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ITPIE.CLI.Models
+namespace CLI.Models
 {
     public class Help
     {

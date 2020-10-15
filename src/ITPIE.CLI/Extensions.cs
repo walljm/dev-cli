@@ -1,4 +1,4 @@
-﻿namespace ITPIE.CLI
+﻿namespace CLI
 {
     public static class Extensions
     {

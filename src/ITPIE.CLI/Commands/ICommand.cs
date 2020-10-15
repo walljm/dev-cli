@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
-using ITPIE.CLI.Models;
+using CLI.Models;
 
-namespace ITPIE.CLI.Commands
+namespace CLI.Commands
 {
     public interface ICommand
     {

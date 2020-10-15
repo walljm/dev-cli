@@ -5,23 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ITPIE.CLI.Models;
+using CLI.Models;
 
-namespace ITPIE.CLI.Commands
+namespace CLI.Commands
 {
-    public class PipeCommand : ICommand
+    public class PipeCommand : CommandBase, ICommand
     {
-        public string Name { get { return "|"; } }
-        private readonly Stack<Context> stack;
+        public override string Name { get { return "|"; } }
+        public override string[] Aliases { get { return new string[] { }; } }
 
-        public PipeCommand(Stack<Context> stack)
+        public PipeCommand(ContextStack stack)
         {
             this.stack = stack;
         }
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Peek();
+            var ctx = this.stack.Current;
 
             var cmds = Regex.Split(cmd.Trim(), @"((?:[^|""']|""[^""]*""|'[^']*')+)")
                           .Skip(1)
@@ -72,7 +72,7 @@ namespace ITPIE.CLI.Commands
             return true;
         }
 
-        public bool Match(string cmd)
+        public override bool Match(string cmd)
         {
             // remove quoted strings.
             var t = Regex.Replace(cmd, @"\"".*?\""", string.Empty);
@@ -85,7 +85,7 @@ namespace ITPIE.CLI.Commands
                 new Help{
                     Command = "|",
                     Description = new List<string>{
-                        "Allows you to send out from a command into another.",
+                        "Allows you to send output from one command into another.",
                         "  Examples:",
                         "   - find device * | in 10.10.10.10",
                         "   - find device * | re \"Cisco|Juniper\"",

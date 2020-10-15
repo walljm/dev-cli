@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ITPIE.CLI.Models;
+using CLI.Models;
 
-namespace ITPIE.CLI.Commands
+#pragma warning disable 1998
+
+namespace CLI.Commands
 {
-    public class GrepCommand : IPipableCommand
+    public class GrepCommand : CommandBase, IPipableCommand
     {
-        public string Name { get { return "grep"; } }
-        private string[] aliases { get { return new[] { "in", "re" }; } }
+        public override string Name { get { return "grep"; } }
+        public override string[] Aliases { get { return new[] { "in", "re" }; } }
 
         public async Task<bool> Run(string cmd)
         {
@@ -54,22 +56,17 @@ namespace ITPIE.CLI.Commands
             return true;
         }
 
-        public bool Match(string cmd)
-        {
-            return cmd.StartsWith(this.Name) || this.aliases.Any(c => cmd.StartsWith(c));
-        }
-
         public Help[] GetHelp()
         {
             return new Help[]{
                 new Help{
-                    Command = "grep",
+                    Command = this.Name,
                     Description = new List<string>{
                         "Used in conjunction with pipe, it allows you to filter results using regular expressions.",
                         "  The '|' character is supported only if the expresssion is quoted.",
                         "",
                         "Aliases:",
-                        "  in | re",
+                        $"  {string.Join(" | ", this.Aliases)}",
                         "",
                         "Examples:",
                         " - find device * | grep 10.10.10.10",

@@ -27,7 +27,7 @@ namespace CLI.Commands
 
             if (terms.Length < 2)
             {
-                Console.WriteLine("Please provide an expression to filter with.");
+                this.stack.WriteLine("Please provide an expression to filter with.");
                 HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
                 return false;
             }
@@ -49,9 +49,9 @@ namespace CLI.Commands
                     }
                 }
 
-                Console.WriteLine();
-                Console.WriteLine($"Matching Lines: {i}, Total Lines: {t}");
-                Console.WriteLine();
+                this.stack.WriteLine();
+                this.stack.WriteLine($"Matching Lines: {i}, Total Lines: {t}");
+                this.stack.WriteLine();
             }
             return true;
         }

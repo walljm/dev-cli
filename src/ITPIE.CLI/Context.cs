@@ -31,14 +31,6 @@ namespace CLI
         {
             var cmd = str.TrimStart();
 
-            // change dir is a special case.  you want to always handle it first.
-            //var cd = this.GetCommand<ChangeContextCommand>();
-            //if (cd.Match(cmd))
-            //{
-            //    await cd.Run(cmd);
-            //    return;
-            //}
-
             if (this.DefaultCommand != null)
             {
                 await this.DefaultCommand.Run(str);
@@ -122,6 +114,10 @@ namespace CLI
                 new AboutCommand(stack),
                 new AllCommand(stack),
                 new GitCommand(stack),
+                new PingCommand(stack),
+                new TestCommand(stack),
+                new ResolveCommand(stack),
+                new MdnsCommand(stack)
             };
         }
 

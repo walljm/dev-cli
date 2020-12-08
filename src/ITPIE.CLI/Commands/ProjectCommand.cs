@@ -1,9 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using CLI.Models;
-
-#pragma warning disable 1998
 
 namespace CLI.Commands
 {
@@ -30,7 +27,7 @@ namespace CLI.Commands
             {
                 await torun.Run(cmd);
             }
-            Console.WriteLine();
+            this.stack.WriteLine();
 
             ctx.SetEnvVariable(Constants.EnvironmentProjectPath, oldPath);
             return true;

@@ -44,12 +44,12 @@ namespace CLI
 
             foreach (var str in welcome)
             {
-                Console.WriteLine(str);
+                stack.WriteLine(str);
             }
 
             var about = stack.GetCommand<AboutCommand>();
             await about.Run(about.Name);
-            Console.WriteLine();
+            stack.WriteLine();
 
             // enter the interactive loop.
             while (true)
@@ -69,7 +69,6 @@ namespace CLI
 
         private static void WritePrompt(ContextStack stack)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
             // Console.Write($"{stack.Environment[Constants.EnvironmentPath]}");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write($" {string.Join(Path.DirectorySeparatorChar, stack.Reverse().Select(c => c.Prompt))}> ");

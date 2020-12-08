@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,28 @@ namespace CLI
         public ICommand GetCommand(string cmd)
         {
             return this.Peek().GetCommand(cmd);
+        }
+
+        public void WriteLine(string str = "")
+        {
+            if (str.Length == 0)
+            {
+                Console.WriteLine();
+                return;
+            }
+
+            var lines = str.Split(new string[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                Console.WriteLine($" {line}");
+            }
+        }
+
+        public void WriteError(string str)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($" {str}");
+            Console.ResetColor();
         }
     }
 }

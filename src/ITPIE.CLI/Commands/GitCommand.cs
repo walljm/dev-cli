@@ -36,11 +36,11 @@ namespace CLI.Commands
                 switch (cmdEvent)
                 {
                     case StandardOutputCommandEvent stdOut:
-                        Console.WriteLine(stdOut.Text);
+                        this.stack.WriteLine(stdOut.Text);
                         break;
 
                     case StandardErrorCommandEvent stdErr:
-                        Console.WriteLine(stdErr.Text);
+                        this.stack.WriteLine(stdErr.Text);
                         break;
                 }
             }

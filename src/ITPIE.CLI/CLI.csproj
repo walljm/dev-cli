@@ -3,12 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>dev</AssemblyName>
+    <AssemblyName>sdev</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'!=''">
-    <AssemblyName>itpie</AssemblyName>
+    <AssemblyName>sdev</AssemblyName>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
@@ -16,7 +16,9 @@
   <ItemGroup>
     <PackageReference Include="CliWrap" Version="3.1.0" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="DnsClient" Version="1.3.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Zeroconf" Version="3.4.2" />
   </ItemGroup>
 </Project>

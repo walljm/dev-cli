@@ -84,20 +84,26 @@ namespace CLI
 
         public ICommand GetCommand(string cmd)
         {
-            foreach (var command in this.Commands.Where(c => c is PipeCommand)) // handle the pipe command first, always.
+            var found_pipe_commands = this.Commands.Where(c => c is PipeCommand && c.Match(cmd)).ToList();
+            if (found_pipe_commands.Count == 1)
             {
-                if (command.Match(cmd))
-                {
-                    return command;
-                }
+                return found_pipe_commands.First();
+            }
+            else if (found_pipe_commands.Count > 1)
+            {
+                var r = found_pipe_commands.FirstOrDefault(c => cmd.StartsWith($"{c.Name} ") || c.Name == cmd);
+                if (r != null) return r;
             }
 
-            foreach (var command in this.Commands)
+            var found_commands = this.Commands.Where(c => c.Match(cmd)).ToList();
+            if (found_commands.Count == 1)
             {
-                if (command.Match(cmd))
-                {
-                    return command;
-                }
+                return found_commands.First();
+            }
+            else if (found_commands.Count > 1)
+            {
+                var r = found_commands.FirstOrDefault(c => cmd.StartsWith($"{c.Name} ") || c.Name == cmd);
+                if (r != null) return r;
             }
 
             return null;
@@ -117,18 +123,36 @@ namespace CLI
                 new PingCommand(stack),
                 new TestCommand(stack),
                 new ResolveCommand(stack),
-                new MdnsCommand(stack)
+                new MdnsCommand(stack),
+                new ItpieCommand(stack)
             };
         }
 
         #endregion Commands Handling
 
         #region Environment
+        
+        public bool HasEnvVariable(string name)
+        {
+            var n = $"{Constants.EnvironmentPrefix}_{name}";
+            var v = Environment.GetEnvironmentVariable(n);
+            if (v != null)
+            {
+                return true;
+            }
+
+            if (this.environment.ContainsKey(name))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         public string GetEnvVariable(string name)
         {
             var n = $"{Constants.EnvironmentPrefix}_{name}";
-            var v = System.Environment.GetEnvironmentVariable(n);
+            var v = Environment.GetEnvironmentVariable(n);
             if (v != null)
             {
                 return v;

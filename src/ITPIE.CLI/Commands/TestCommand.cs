@@ -188,7 +188,19 @@ namespace CLI.Commands
 
         public Help[] GetHelp()
         {
-            return new Help[0];
+            return new Help[] {
+                new Help
+                {
+                    Command = $"{this.Name}",
+                    Description = new List<string>
+                    {
+                        $"Test subnet or ip for ssh, telnet, and ping",
+                        "",
+                        "Aliases:",
+                        $"  {string.Join(" | ", this.Aliases)}",
+                    }
+                }
+            };
         }
     }
 

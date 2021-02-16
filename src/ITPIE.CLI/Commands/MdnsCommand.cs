@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CLI.Models;
@@ -48,7 +49,19 @@ namespace CLI.Commands
 
         public Help[] GetHelp()
         {
-            return new Help[0];
+            return new Help[] {
+                new Help
+                {
+                    Command = $"{this.Name}",
+                    Description = new List<string>
+                    {
+                        $"Scan for mDNS (Bonjour) services on the network",
+                        "",
+                        "Aliases:",
+                        $"  {string.Join(" | ", this.Aliases)}",
+                    }
+                }
+            };
         }
     }
 }

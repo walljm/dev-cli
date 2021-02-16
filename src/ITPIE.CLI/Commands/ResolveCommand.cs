@@ -170,21 +170,21 @@ namespace CLI.Commands
             }
         }
 
-        private void writeData(object obj)
-        {
-            if (obj.GetType().IsAssignableFrom(typeof(IEnumerable<>)))
-            {
-
-            }
-            else
-            {
-
-            }
-        }
-
         public Help[] GetHelp()
         {
-            return new Help[0];
+            return new Help[] {
+                new Help
+                {
+                    Command = $"{this.Name}",
+                    Description = new List<string>
+                    {
+                        $"Resolve ip or hostname to its opposite",
+                        "",
+                        "Aliases:",
+                        $"  {string.Join(" | ", this.Aliases)}",
+                    }
+                }
+            };
         }
     }
 }

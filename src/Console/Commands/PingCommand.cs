@@ -59,6 +59,7 @@ namespace CLI.Commands
                     {
                         ContextStack.WriteLine($"   {r.Address} {r.Status}");
                     }
+                    ContextStack.WriteLine();
                 }
                 else if (target.IsIP())
                 {
@@ -76,6 +77,7 @@ namespace CLI.Commands
                         "Error: you must provide a valid IP or Subnet to ping.  Multiple values separated by a space.");
                 }
             }
+            ContextStack.WriteLine();
 
             return true;
         }

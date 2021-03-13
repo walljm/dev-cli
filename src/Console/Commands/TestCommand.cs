@@ -39,32 +39,32 @@ namespace CLI.Commands
                     ContextStack.WriteLine($"Testing {h - l} IP Addresses");
                     var replies = this.testMany(l, h);
 
-                    this.printResults("SSH Open and Pingable", replies
+                    printResults("SSH Open and Pingable", replies
                         .Where(v => v.PingResult.Status == IPStatus.Success && v.SshResult == PortStatus.Open)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
-                    this.printResults("SSH Open but Ping Failed", replies
+                    printResults("SSH Open but Ping Failed", replies
                         .Where(v => v.PingResult.Status != IPStatus.Success && v.SshResult == PortStatus.Open)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
                     if (telnet)
                     {
-                        this.printResults("Telnet Open", replies
+                        printResults("Telnet Open", replies
                             .Where(v => v.TelnetResult == PortStatus.Open)
                             .OrderBy(v => v.Address.ToString().IpToInt())
                             .ToList());
                     }
 
-                    this.printResults("Ping Success but SSH Failed", replies
+                    printResults("Ping Success but SSH Failed", replies
                         .Where(v => v.PingResult.Status == IPStatus.Success && v.SshResult == PortStatus.Closed)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
                     if (verbose)
                     {
-                        this.printResults("Closed", replies
+                        printResults("Closed", replies
                             .Where(v => v.PingResult.Status != IPStatus.Success && v.SshResult == PortStatus.Closed)
                             .OrderBy(v => v.Address.ToString().IpToInt())
                             .ToList());
@@ -83,7 +83,6 @@ namespace CLI.Commands
                         ContextStack.WriteLine($"   Time to live: {r.Options.Ttl} ms");
                         ContextStack.WriteLine($"    Buffer size: {r.Buffer.Length}");
                     }
-
                     ContextStack.WriteLine();
                 }
                 else
@@ -96,7 +95,7 @@ namespace CLI.Commands
             return Task.FromResult(true);
         }
 
-        private void printResults(string msg, IEnumerable<TestResult> results)
+        private static void printResults(string msg, IEnumerable<TestResult> results)
         {
             if (results.Any())
             {
@@ -115,9 +114,8 @@ namespace CLI.Commands
                         ContextStack.WriteLine($" {r.Address}");
                     }
                 }
-
-                ContextStack.WriteLine();
             }
+            ContextStack.WriteLine();
         }
 
         private ConcurrentBag<TestResult> testMany(uint l, uint h)

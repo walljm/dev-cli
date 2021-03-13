@@ -54,10 +54,15 @@ namespace CLI.Commands
                 var helps = command.GetHelp();
                 foreach (var help in helps)
                 {
-                    Console.WriteLine($"{spacer}{help.Command.Name.PadRight(cWidth)}{spacer}{help.Description.First()}");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write($"{spacer}{help.Command.Name.PadRight(cWidth)}");
+                    Console.ResetColor();
+                    Console.Write($"{spacer}{help.Description.First()}");
+
+                    Console.WriteLine();
                     if (help.Command.Aliases.Length > 0)
                     {
-                        Console.WriteLine($"{spacer}Aliases: {string.Join(" | ", help.Command.Aliases)}");
+                        Console.WriteLine($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}Aliases: {string.Join(", ", help.Command.Aliases)}");
                     }
 
                     foreach (var desc in help.Description.Skip(1))

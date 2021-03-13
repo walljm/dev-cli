@@ -6,8 +6,8 @@ namespace CLI
 {
     public static class Extensions
     {
-        private static readonly Regex ipRegex = new Regex(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", RegexOptions.Compiled);
-        private static readonly Regex subnetRegex = new Regex(@"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+", RegexOptions.Compiled);
+        private static readonly Regex ipRegex = new(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", RegexOptions.Compiled);
+        private static readonly Regex subnetRegex = new(@"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+", RegexOptions.Compiled);
 
         /// <summary>
         /// Changes a "CamelCasedString" to "Camel Cased String"
@@ -16,8 +16,7 @@ namespace CLI
         /// <returns></returns>
         public static string SpaceByCamelCase(this string camelCasedString)
         {
-            return System.Text.RegularExpressions.Regex.Replace(camelCasedString,
-                "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
+            return Regex.Replace(camelCasedString, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
         }
 
         public static bool IsIP(this string str)
@@ -142,7 +141,7 @@ namespace CLI
             for (var x = 0; x < octets.Length; ++x)
             {
                 var octet = (uint)Convert.ToInt32(octets[x]);
-                octet = octet << 8 * (4 - 1 - x);
+                octet <<= 8 * (4 - 1 - x);
                 output += octet;
             }
 
@@ -219,7 +218,7 @@ namespace CLI
         public static string ParseAfterIndexOf_PlusIndexLength(this string s, Regex reg)
         {
             var m = reg.Match(s);
-            return s.Substring(m.Index + m.Length);
+            return s[(m.Index + m.Length)..];
         }
 
         /// <summary>
@@ -249,7 +248,7 @@ namespace CLI
 
                 if (t.IndexOf(i, StringComparison.Ordinal) > -1)
                 {
-                    return s.Substring(t.IndexOf(i, StringComparison.Ordinal) + i.Length);
+                    return s[(t.IndexOf(i, StringComparison.Ordinal) + i.Length)..];
                 }
             }
 

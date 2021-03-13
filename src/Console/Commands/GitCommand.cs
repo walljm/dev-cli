@@ -53,10 +53,7 @@ namespace CLI.Commands
                     Command = this,
                     Description = new List<string>
                     {
-                        $"Execute {this.Name} commands in the current environment: {this.stack.AppSettings.Public.ItpieProjectPath}",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Execute {this.Name} commands in the project folder: {this.stack.AppSettings.Public.ItpieProjectPath}"
                     }
                 }
             };

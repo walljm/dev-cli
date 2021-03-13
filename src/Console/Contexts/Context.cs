@@ -14,6 +14,12 @@ namespace CLI
 
         public List<ICommand> Commands { get; set; }
 
+        public Context(string prompt, List<ICommand> commands)
+        {
+            this.Prompt = prompt;
+            this.Commands = commands;
+        }
+
         #region Commands Handling
 
         public async Task HandleCommand(string str)

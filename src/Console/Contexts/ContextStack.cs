@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -52,6 +53,7 @@ namespace CLI
         public void AddContext(Context context)
         {
             this.stack.Push(context);
+            Console.WriteLine();
             Console.Title = this.getTitle();
         }
 
@@ -61,9 +63,11 @@ namespace CLI
             Console.Title = this.getTitle();
         }
 
-        private string getTitle()
+        public void WritePrompt()
         {
-            return $"{Assembly.GetExecutingAssembly().GetName().Name}: {string.Join('/', this.stack.Reverse().Select(o => o.Prompt))}";
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($" {string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(c => c.Prompt))}> ");
+            Console.ResetColor();
         }
 
         public List<ICommand> CreateDefaultCommands()
@@ -82,6 +86,11 @@ namespace CLI
                 new MdnsCommand(this),
                 new ItpieCommand(this)
             };
+        }
+
+        private string getTitle()
+        {
+            return $"{Assembly.GetExecutingAssembly().GetName().Name}: {string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(o => o.Prompt))}";
         }
 
         public static void Write(string str = "")

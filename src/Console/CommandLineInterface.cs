@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using CLI.Commands;
 using CLI.Settings;
@@ -22,15 +19,15 @@ namespace CLI
 
         public async Task Run()
         {
-            Console.Title = Assembly.GetExecutingAssembly().GetName().Name;
-
             // start up an initial stack of contexts
-            var stack = this.initContextStack();
+            var stack = new ContextStack(this.appSettings, this.storage);
+            stack.AddContext(new Context(Constants.DefaultPrompt, stack.CreateDefaultCommands()));
 
             // say hello to the user.
             var welcome = new List<string>
             {
                 "Welcome to the Walljm Development CLI!",
+                "Go forth and be more productive -> "
             };
 
             foreach (var str in welcome)
@@ -38,6 +35,7 @@ namespace CLI
                 ContextStack.WriteLine(str);
             }
 
+            // tell the user whats up.
             var about = stack.GetCommand<AboutCommand>();
             await about.Run(about.Name);
             ContextStack.WriteLine();
@@ -45,8 +43,7 @@ namespace CLI
             // enter the interactive loop.
             while (true)
             {
-                var context = stack.Current;
-                writePrompt(stack);
+                stack.WritePrompt();
 
                 var cmd = Console.ReadLine();
                 if (cmd == "exit") // handle a universal exit command.
@@ -62,27 +59,8 @@ namespace CLI
                     }
                 }
 
-                await context.HandleCommand(cmd);
+                await stack.Current.HandleCommand(cmd);
             }
-        }
-
-        private static void writePrompt(ContextStack stack)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write($" {string.Join(Path.DirectorySeparatorChar, stack.Reverse().Select(c => c.Prompt))}> ");
-            Console.ResetColor();
-        }
-
-        private ContextStack initContextStack()
-        {
-            var stack = new ContextStack(this.appSettings, this.storage);
-            stack.AddContext(new Context()
-            {
-                Prompt = $"{Constants.DefaultPrompt}",
-                Commands = stack.CreateDefaultCommands()
-            });
-
-            return stack;
         }
     }
 }

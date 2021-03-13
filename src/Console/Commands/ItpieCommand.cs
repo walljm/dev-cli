@@ -69,14 +69,9 @@ namespace CLI.Commands
 
         private ContextStack initItpieContext(ContextStack stack)
         {
-            var context = new Context()
-            {
-                Prompt = Name,
-                Commands = stack.CreateDefaultCommands().Where(c => c.Name != this.Name).ToList()
-            };
+            var context = new Context(Name, stack.CreateDefaultCommands().Where(c => c.Name != this.Name).ToList());
             context.Commands.Add(new Itpie.SetupCommand(stack, this.client));
             stack.AddContext(context);
-            Console.WriteLine();
             return stack;
         }
 

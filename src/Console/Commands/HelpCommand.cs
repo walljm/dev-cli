@@ -41,6 +41,7 @@ namespace CLI.Commands
                     }
                 }
             }
+
             Console.WriteLine();
             if (printHeader)
             {

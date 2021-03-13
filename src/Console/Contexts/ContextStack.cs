@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using CLI.Commands;
@@ -8,10 +9,12 @@ using CLI.Settings;
 
 namespace CLI
 {
-    public class ContextStack : Stack<Context>
+    public class ContextStack
     {
-        public Context Current { get { return this.Peek(); } }
+        private readonly Stack<Context> stack = new();
 
+        public int Count { get { return this.stack.Count; } }
+        public Context Current { get { return this.stack.Peek(); } }
         public AppSettings AppSettings { get; private set; }
         public Storage Storage { get; private set; }
 
@@ -39,6 +42,46 @@ namespace CLI
         public ICommand GetCommand(string cmd)
         {
             return this.Current.GetCommand(cmd);
+        }
+
+        public IEnumerable<Context> Reverse()
+        {
+            return this.stack.Reverse();
+        }
+
+        public void AddContext(Context context)
+        {
+            this.stack.Push(context);
+            Console.Title = this.getTitle();
+        }
+
+        public void RemoveContext()
+        {
+            this.stack.Pop();
+            Console.Title = this.getTitle();
+        }
+
+        private string getTitle()
+        {
+            return $"{Assembly.GetExecutingAssembly().GetName().Name}: {string.Join('/', this.stack.Reverse().Select(o => o.Prompt))}";
+        }
+
+        public List<ICommand> CreateDefaultCommands()
+        {
+            return new List<ICommand>
+            {
+                new HelpCommand(this),
+                new PipeCommand(this),
+                new GrepCommand(),
+                new AboutCommand(this),
+                new AllCommand(this),
+                new GitCommand(this),
+                new PingCommand(this),
+                new TestCommand(this),
+                new ResolveCommand(this),
+                new MdnsCommand(this),
+                new ItpieCommand(this)
+            };
         }
 
         public static void Write(string str = "")
@@ -71,24 +114,6 @@ namespace CLI
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($" {str}");
             Console.ResetColor();
-        }
-
-        public List<ICommand> CreateDefaultCommands()
-        {
-            return new List<ICommand>
-            {
-                new HelpCommand(this),
-                new PipeCommand(this),
-                new GrepCommand(),
-                new AboutCommand(this),
-                new AllCommand(this),
-                new GitCommand(this),
-                new PingCommand(this),
-                new TestCommand(this),
-                new ResolveCommand(this),
-                new MdnsCommand(this),
-                new ItpieCommand(this)
-            };
         }
     }
 }

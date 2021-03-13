@@ -5,7 +5,7 @@ namespace CLI.Commands
     public abstract class CommandBase
     {
         protected ContextStack stack;
-        protected Context context { get { return this.stack.Peek(); } }
+        protected Context context { get { return this.stack.Current; } }
         public abstract string Name { get; }
         public abstract string[] Aliases { get; }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CLI.Commands;
 using CLI.Settings;
@@ -21,6 +22,8 @@ namespace CLI
 
         public async Task Run()
         {
+            Console.Title = Assembly.GetExecutingAssembly().GetName().Name;
+
             // start up an initial stack of contexts
             var stack = this.initContextStack();
 
@@ -43,12 +46,12 @@ namespace CLI
             while (true)
             {
                 var context = stack.Current;
-                WritePrompt(stack);
+                writePrompt(stack);
 
                 var cmd = Console.ReadLine();
                 if (cmd == "exit") // handle a universal exit command.
                 {
-                    stack.Pop();
+                    stack.RemoveContext();
                     if (stack.Count == 0)
                     {
                         return;
@@ -63,7 +66,7 @@ namespace CLI
             }
         }
 
-        private static void WritePrompt(ContextStack stack)
+        private static void writePrompt(ContextStack stack)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write($" {string.Join(Path.DirectorySeparatorChar, stack.Reverse().Select(c => c.Prompt))}> ");
@@ -73,11 +76,12 @@ namespace CLI
         private ContextStack initContextStack()
         {
             var stack = new ContextStack(this.appSettings, this.storage);
-            stack.Push(new Context()
+            stack.AddContext(new Context()
             {
                 Prompt = $"{Constants.DefaultPrompt}",
                 Commands = stack.CreateDefaultCommands()
             });
+
             return stack;
         }
     }

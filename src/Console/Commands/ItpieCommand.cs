@@ -75,9 +75,8 @@ namespace CLI.Commands
                 Commands = stack.CreateDefaultCommands().Where(c => c.Name != this.Name).ToList()
             };
             context.Commands.Add(new Itpie.SetupCommand(stack, this.client));
-            stack.Push(context);
+            stack.AddContext(context);
             Console.WriteLine();
-
             return stack;
         }
 

@@ -64,8 +64,8 @@ namespace CLI.Commands
                         "  The '|' character is supported only if the expresssion is quoted.",
                         "",
                         "Examples:",
-                        " - find device * | grep 10.10.10.10",
-                        " - find device * | grep \"Cisco|Juniper\"",
+                        " > find device * | grep 10.10.10.10",
+                        " > find device * | grep \"Cisco|Juniper\"",
                     }
                 }
             };

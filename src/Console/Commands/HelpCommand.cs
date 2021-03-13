@@ -83,7 +83,13 @@ namespace CLI.Commands
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write($"{spacer}{"exit".PadLeft(cWidth)}");
                 Console.ResetColor();
-                Console.Write($"{spacer}Exits the CLI application");
+                Console.Write($"{spacer}Exits the current context");
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"{spacer}{"quit".PadLeft(cWidth)}");
+                Console.ResetColor();
+                Console.Write($"{spacer}Exits the application");
                 Console.WriteLine();
             }
 

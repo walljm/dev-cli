@@ -25,51 +25,60 @@ namespace CLI.Commands.Itpie
         public async Task<bool> Run(string cmd)
         {
             var args = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1);
-            var ips = args.Take(1).FirstOrDefault() ?? "all";
+            var job = args.Take(1).FirstOrDefault() ?? "all";
+            var runNow = args.Skip(1).FirstOrDefault() == "-run";
 
-            switch (ips)
+            switch (job)
             {
                 case "all":
                 {
-                    var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.ips");
+                    var files = Directory.GetFiles(AppContext.BaseDirectory, "*.ips");
                     foreach (var file in files)
                     {
                         var name = Path.GetFileNameWithoutExtension(file);
-                        await this.doSetup(name);
+                        await this.doSetup(name, runNow);
                     }
                     break;
                 }
                 default:
                 {
-                    await this.doSetup(ips);
+                    await this.doSetup(job, runNow);
                     break;
                 }
             }
             return true;
         }
 
-        private async Task doSetup(string name)
+        private async Task doSetup(string name, bool runNow = false)
         {
-            var ips = string.Empty;
-            if (File.Exists($"{name}.ips"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"{name}.ips");
+            string ips;
+            if (File.Exists(file))
             {
-                ips = File.ReadAllText($"{name}.ips");
+                ips = File.ReadAllText(file);
+            }
+            else
+            {
+                ContextStack.WriteError($"Unable to locate file: {file}");
+                return;
             }
 
             // create the job
+            var suffix = $"{DateTime.Now.Ticks}";
             var job = new JobWithTargetRequest
             {
-                Name = $"{name}-{Guid.NewGuid()}",
+                Name = $"{name}-{suffix}",
                 JobTypes = new[] { "ARP", "MAC", "Device", "Route" },
                 Protocol = "Ssh",
                 IncludedRanges = ips
             };
-            await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/jobs/target", job);
+            var jobResult = await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/jobs/target", job);
+            var jobResponse = await jobResult.Content.ReadAsAsync<JobResponse>();
 
             var (user, pass) = getCredentials(name);
             var creds = new CredentialGroupRequest
             {
-                Name = $"{name}-{Guid.NewGuid()}",
+                Name = $"{name}-{suffix}",
                 IncludedRanges = ips,
                 Credentials = new List<CredentialRequest>
                 {
@@ -85,6 +94,11 @@ namespace CLI.Commands.Itpie
             };
 
             await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/credential-groups", creds);
+
+            if (runNow)
+            {
+                await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/jobs/{jobResponse.Id}/schedules/trigger", jobResponse.Id);
+            }
         }
 
         private static (string, string) getCredentials(string action)
@@ -126,7 +140,14 @@ namespace CLI.Commands.Itpie
                     Command = this,
                     Description = new List<string>
                     {
-                        $"Setup jobs and credentials for ITPIE"
+                        $"Setup jobs and credentials for ITPIE",
+                        "",
+                        "Options:",
+                        "  -run : executes the job as soon as it has been created.",
+                        "",
+                        "Examples:",
+                        " > setup corp",
+                        " > setup sdev -run"
                     }
                 }
             };

@@ -69,8 +69,17 @@ namespace CLI.Commands
 
         private ContextStack initItpieContext(ContextStack stack)
         {
-            var context = new Context(Name, stack.CreateDefaultCommands().Where(c => c.Name != this.Name).ToList());
-            context.Commands.Add(new Itpie.SetupCommand(stack, this.client));
+            var commands = new List<ICommand>
+            {
+                new HelpCommand(stack),
+                new PipeCommand(stack),
+                new GrepCommand(),
+                new PingCommand(stack),
+                new TestCommand(stack),
+
+                new Itpie.SetupCommand(stack, this.client)
+            };
+            var context = new Context(this.Name, commands);
             stack.AddContext(context);
             return stack;
         }
@@ -105,16 +114,33 @@ namespace CLI.Commands
                 {
                     var c = await response.Content.ReadAsStringAsync();
                     var d = JsonConvert.DeserializeObject<ProblemDetails>(c);
-                    Console.WriteLine();
-                    Console.WriteLine("Unable to login.");
+                    ContextStack.WriteLine();
+                    ContextStack.WriteLine("Unable to login.");
                     foreach (var ext in d.Extensions.Where(kvp => kvp.Key == "errors"))
                     {
                         var dict = ((Newtonsoft.Json.Linq.JObject)ext.Value).ToObject<Dictionary<string, string[]>>();
                         foreach (var msg in dict.SelectMany(o => o.Value))
                         {
-                            Console.WriteLine(msg);
+                            ContextStack.WriteLine(msg);
                         }
                     }
+
+                    ContextStack.WriteLine();
+                    ContextStack.WriteStart("Do you want to enter new Credentials? (y/n)");
+                    while (true)
+                    {
+                        var key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Y)
+                        {
+                            ContextStack.WriteLine();
+                            this.stack.Storage.GetUsernameAndPassword(this.stack.AppSettings);
+                            await this.DoLogin(this.stack.AppSettings.Protected.ItpieUser, this.stack.AppSettings.Protected.ItpieUser);
+                        }
+
+                        break;
+                    }
+                    ContextStack.WriteLine();
+
                     return false;
                 }
                 var token = await response.Content.ReadAsAsync<Token>();
@@ -125,7 +151,7 @@ namespace CLI.Commands
             {
                 if (ex.InnerException is System.Security.Authentication.AuthenticationException)
                 {
-                    Console.WriteLine($"ERROR: {ex.InnerException.Message}");
+                    ContextStack.WriteLine($"ERROR: {ex.InnerException.Message}");
                 }
                 return false;
             }
@@ -139,7 +165,10 @@ namespace CLI.Commands
                     Command = this,
                     Description = new List<string>
                     {
-                        $"A set of commands for interacting with an ITPIE server"
+                        $"A set of commands for interacting with an ITPIE server",
+                        "",
+                        "Commands:",
+                        " > setup"
                     }
                 }
             };

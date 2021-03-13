@@ -58,6 +58,10 @@ namespace CLI
                         continue;
                     }
                 }
+                else if (cmd == "quit")
+                {
+                    return; // hard exit.
+                }
 
                 await stack.Current.HandleCommand(cmd);
             }

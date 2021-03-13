@@ -16,9 +16,8 @@ namespace CLI.Settings
         // the 'provider' parameter is provided by DI
         public Storage()
         {
-            
             var name = $"{Assembly.GetExecutingAssembly().GetName().Name}.{nameof(CommandLineInterface)}";
-            var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"),name);
+            var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"), name);
 
             // Instantiate the data protection system at this folder
             var dataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo(destFolder));
@@ -70,13 +69,13 @@ namespace CLI.Settings
         {
             // if you're storing the protected settings, then you can safely reset them here.
             settings.Protected = new ProtectedSettings();
-            Console.WriteLine(" Please enter your ITPIE API credentials ");
+            ContextStack.WriteLine("Please enter your ITPIE API credentials ");
 
             // get username and password.
-            Console.Write(" Username: ");
+            ContextStack.WriteStart("Username: ");
             settings.Protected.ItpieUser = Console.ReadLine();
 
-            Console.Write(" Password: ");
+            ContextStack.WriteStart("Password: ");
             settings.Protected.ItpiePass = string.Empty;
             while (true)
             {
@@ -86,10 +85,10 @@ namespace CLI.Settings
                 settings.Protected.ItpiePass += key.KeyChar;
             }
 
-            Console.WriteLine();
+            ContextStack.WriteLine();
             if (!store)
             {
-                Console.Write(" Write credentials to secure Storage? (y/n): ");
+                ContextStack.WriteStart("Write credentials to secure Storage? (y/n): ");
                 while (true)
                 {
                     var key = Console.ReadKey(true);
@@ -101,8 +100,8 @@ namespace CLI.Settings
 
                     break;
                 }
-                
-                Console.WriteLine();
+
+                ContextStack.WriteLine();
             }
             else
             {
@@ -113,10 +112,10 @@ namespace CLI.Settings
         public void GetItpieServerUrl(AppSettings settings)
         {
             // get username and password.
-            Console.Write(" Please enter your ITPIE URL (e.g. https://itpie.com): ");
+            ContextStack.WriteStart("Please enter your ITPIE URL (e.g. https://itpie.com): ");
             settings.Public.ItpieServerUrl = Console.ReadLine();
 
-            Console.Write(" Write to settings file? (y/n): ");
+            ContextStack.WriteStart("Write to settings file? (y/n): ");
             while (true)
             {
                 var key = Console.ReadKey(true);
@@ -128,7 +127,7 @@ namespace CLI.Settings
 
                 break;
             }
-            Console.WriteLine();
+            ContextStack.WriteLine();
         }
     }
 }

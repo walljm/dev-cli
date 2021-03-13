@@ -58,7 +58,7 @@ namespace CLI.Commands
         {
             return new Help[]{
                 new Help{
-                    Command = this.Name,
+                    Command = this,
                     Description = new List<string>{
                         "Used in conjunction with pipe, it allows you to filter results using regular expressions.",
                         "  The '|' character is supported only if the expresssion is quoted.",

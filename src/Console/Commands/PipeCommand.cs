@@ -81,7 +81,7 @@ namespace CLI.Commands
         {
             return new Help[]{
                 new Help{
-                    Command = "|",
+                    Command = this,
                     Description = new List<string>{
                         "Allows you to send output from one command into another.",
                         "  Examples:",

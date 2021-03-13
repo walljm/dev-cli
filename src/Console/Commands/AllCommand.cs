@@ -53,13 +53,10 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"Run a command in every project folder under {this.stack.AppSettings.Public.ItpieProjectPath}",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Run a command in every project folder under {this.stack.AppSettings.Public.ItpieProjectPath}"
                     }
                 }
             };

@@ -123,13 +123,10 @@ namespace CLI.Commands.Itpie
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"Setup jobs and credentials for ITPIE",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Setup jobs and credentials for ITPIE"
                     }
                 }
             };

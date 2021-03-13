@@ -5,6 +5,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>sdev</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'!=''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CliWrap" Version="3.1.0" />
+    <PackageReference Include="CliWrap" Version="3.3.1" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="DnsClient" Version="1.3.2" />
+    <PackageReference Include="DnsClient" Version="1.4.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="5.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Zeroconf" Version="3.4.2" />
   </ItemGroup>

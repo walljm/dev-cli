@@ -34,7 +34,7 @@ namespace CLI.Commands
                 var helps = command.GetHelp();
                 foreach (var help in helps)
                 {
-                    cWidth = cWidth < help.Command.Length ? help.Command.Length : cWidth;
+                    cWidth = cWidth < help.Command.Name.Length ? help.Command.Name.Length : cWidth;
                     foreach (var desc in help.Description)
                     {
                         dWidth = dWidth < desc.Length ? desc.Length : dWidth;
@@ -54,7 +54,12 @@ namespace CLI.Commands
                 var helps = command.GetHelp();
                 foreach (var help in helps)
                 {
-                    Console.WriteLine($"{spacer}{help.Command.PadRight(cWidth)}{spacer}{help.Description.First()}");
+                    Console.WriteLine($"{spacer}{help.Command.Name.PadRight(cWidth)}{spacer}{help.Description.First()}");
+                    if (help.Command.Aliases.Length > 0)
+                    {
+                        Console.WriteLine($"{spacer}Aliases: {string.Join(" | ", help.Command.Aliases)}");
+                    }
+
                     foreach (var desc in help.Description.Skip(1))
                     {
                         Console.WriteLine($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}{desc}");
@@ -66,6 +71,7 @@ namespace CLI.Commands
             {
                 Console.WriteLine($"{spacer}{"exit".PadRight(cWidth)}{spacer}Exits the CLI application");
             }
+
             Console.WriteLine();
         }
 

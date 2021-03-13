@@ -175,13 +175,10 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"Resolve ip or hostname to its opposite",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Resolve ip or hostname to its opposite"
                     }
                 }
             };

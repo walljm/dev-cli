@@ -50,13 +50,10 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"Scan for mDNS (Bonjour) services on the network",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Scan for mDNS (Bonjour) services on the network"
                     }
                 }
             };

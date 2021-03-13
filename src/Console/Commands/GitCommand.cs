@@ -50,7 +50,7 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
                         $"Execute {this.Name} commands in the current environment: {this.stack.AppSettings.Public.ItpieProjectPath}",

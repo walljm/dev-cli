@@ -14,10 +14,15 @@ namespace CLI.Settings
         private readonly string settingsFilePath = "public.settings";
 
         // the 'provider' parameter is provided by DI
-        public Storage(IDataProtectionProvider provider)
+        public Storage()
         {
-            var name = $"{Assembly.GetCallingAssembly().GetName().FullName}.{nameof(CommandLineInterface)}";
-            this.protector = provider.CreateProtector(name);
+            
+            var name = $"{Assembly.GetExecutingAssembly().GetName().Name}.{nameof(CommandLineInterface)}";
+            var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"),name);
+
+            // Instantiate the data protection system at this folder
+            var dataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo(destFolder));
+            this.protector = dataProtectionProvider.CreateProtector(name);
         }
 
         public void StoreSettings(AppSettings obj)
@@ -44,9 +49,18 @@ namespace CLI.Settings
                 var encValue = File.ReadAllText(this.protectedFilePath);
                 settings.Protected = JsonConvert.DeserializeObject<ProtectedSettings>(this.protector.Unprotect(encValue));
             }
+            else
+            {
+                settings.Protected = new ProtectedSettings();
+            }
+
             if (File.Exists(this.settingsFilePath))
             {
                 settings.Public = JsonConvert.DeserializeObject<PublicSettings>(File.ReadAllText(this.settingsFilePath));
+            }
+            else
+            {
+                settings.Public = new PublicSettings();
             }
 
             return settings; // return defaults.

@@ -189,13 +189,10 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"Test subnet or ip for ssh, telnet, and ping",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"Test subnet or ip for ssh, telnet, and ping"
                     }
                 }
             };

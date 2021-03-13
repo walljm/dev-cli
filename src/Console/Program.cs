@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CLI.Settings;
 using CommandLine;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CLI
 {
@@ -16,15 +15,8 @@ namespace CLI
                 return;
             }
 
-            // setup your app services
-            var appServices = new ServiceCollection();
-            appServices.AddSingleton(results.Settings);
-            appServices.AddSingleton(results.Storage);
-            var appServiceProvider = appServices.BuildServiceProvider();
-
             // execute the cli
-            var integration = ActivatorUtilities.CreateInstance<CommandLineInterface>(appServiceProvider);
-            await integration.Run();
+            await new CommandLineInterface(results.Settings, results.Storage).Run();
         }
 
         /// <summary>
@@ -53,13 +45,9 @@ namespace CLI
             {
                 return SetupResult.Fail();
             }
-            // setup data protection so you can store settings safely.
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddDataProtection();
-            var services = serviceCollection.BuildServiceProvider();
 
             // get your storage provider
-            var storage = ActivatorUtilities.CreateInstance<Storage>(services);
+            var storage = new Storage();
             var settings = storage.RetrieveSettings();
 
             // if settings were passed in from the cli, then pass them along

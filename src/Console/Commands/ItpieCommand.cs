@@ -142,13 +142,10 @@ namespace CLI.Commands
             return new Help[] {
                 new Help
                 {
-                    Command = $"{this.Name}",
+                    Command = this,
                     Description = new List<string>
                     {
-                        $"A set of commands for interacting with itpie",
-                        "",
-                        "Aliases:",
-                        $"  {string.Join(" | ", this.Aliases)}",
+                        $"A set of commands for interacting with an ITPIE server"
                     }
                 }
             };

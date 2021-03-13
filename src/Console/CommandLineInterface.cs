@@ -4,37 +4,25 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CLI.Commands;
-using CommandLine;
+using CLI.Settings;
 
 namespace CLI
 {
-    internal class Program
+    public class CommandLineInterface
     {
-        private static async Task Main(string[] args)
+        private readonly AppSettings appSettings;
+        private readonly Storage storage;
+
+        public CommandLineInterface(AppSettings settings, Storage storage)
         {
-            // parse the command line arguments
+            this.appSettings = settings;
+            this.storage = storage;
+        }
 
-            CommandLineOptions opts = null;
-            bool stop = false;
-            Parser.Default
-                .ParseArguments<CommandLineOptions>(args)
-                .WithParsed(options =>
-                {
-                    opts = options;
-                })
-                .WithNotParsed(errors =>
-                {
-                    stop = errors.Any(e => e.StopsProcessing);
-                });
-
-            // if no arguments then exit.
-            if (stop || opts == null)
-            {
-                return;
-            }
-
+        public async Task Run()
+        {
             // start up an initial stack of contexts
-            var stack = initContextStack();
+            var stack = this.initContextStack();
 
             // say hello to the user.
             var welcome = new List<string>
@@ -44,12 +32,12 @@ namespace CLI
 
             foreach (var str in welcome)
             {
-                stack.WriteLine(str);
+                ContextStack.WriteLine(str);
             }
 
             var about = stack.GetCommand<AboutCommand>();
             await about.Run(about.Name);
-            stack.WriteLine();
+            ContextStack.WriteLine();
 
             // enter the interactive loop.
             while (true)
@@ -60,7 +48,15 @@ namespace CLI
                 var cmd = Console.ReadLine();
                 if (cmd == "exit") // handle a universal exit command.
                 {
-                    return;
+                    stack.Pop();
+                    if (stack.Count == 0)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
 
                 await context.HandleCommand(cmd);
@@ -69,22 +65,19 @@ namespace CLI
 
         private static void WritePrompt(ContextStack stack)
         {
-            // Console.Write($"{stack.Environment[Constants.EnvironmentPath]}");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write($" {string.Join(Path.DirectorySeparatorChar, stack.Reverse().Select(c => c.Prompt))}> ");
             Console.ResetColor();
         }
 
-        private static ContextStack initContextStack()
+        private ContextStack initContextStack()
         {
-            var stack = new ContextStack();
-            var mainContext = new Context
+            var stack = new ContextStack(this.appSettings, this.storage);
+            stack.Push(new Context()
             {
                 Prompt = $"{Constants.DefaultPrompt}",
-                Commands = Context.GetDefaultCommands(stack)
-            };
-            mainContext.SetEnvVariable(Constants.EnvironmentProjectPath, @"C:\Projects\vae");
-            stack.Push(mainContext);
+                Commands = stack.CreateDefaultCommands()
+            });
             return stack;
         }
     }

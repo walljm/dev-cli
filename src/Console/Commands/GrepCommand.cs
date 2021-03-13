@@ -7,8 +7,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CLI.Models;
 
-#pragma warning disable 1998
-
 namespace CLI.Commands
 {
     public class GrepCommand : CommandBase, IPipableCommand
@@ -16,20 +14,20 @@ namespace CLI.Commands
         public override string Name { get { return "grep"; } }
         public override string[] Aliases { get { return new[] { "in", "re" }; } }
 
-        public async Task<bool> Run(string cmd)
+        public Task<bool> Run(string cmd)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
-        public async Task<bool> RunWithPipe(string cmd, StringBuilder stdIn)
+        public Task<bool> RunWithPipe(string cmd, StringBuilder stdIn)
         {
             var terms = cmd.Trim().Split(" ", StringSplitOptions.None);
 
             if (terms.Length < 2)
             {
-                this.stack.WriteLine("Please provide an expression to filter with.");
+                ContextStack.WriteLine("Please provide an expression to filter with.");
                 HelpCommand.WriteHelp(new List<ICommand> { this }, false, false);
-                return false;
+                return Task.FromResult(false);
             }
 
             var query = string.Join(' ', terms.Skip(1)).Trim('"');
@@ -49,11 +47,11 @@ namespace CLI.Commands
                     }
                 }
 
-                this.stack.WriteLine();
-                this.stack.WriteLine($"Matching Lines: {i}, Total Lines: {t}");
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
+                ContextStack.WriteLine($"Matching Lines: {i}, Total Lines: {t}");
+                ContextStack.WriteLine();
             }
-            return true;
+            return Task.FromResult(true);
         }
 
         public Help[] GetHelp()

@@ -9,126 +9,76 @@ using CLI.Commands.Itpie.Models;
 using CLI.Models;
 using Newtonsoft.Json;
 
-#pragma warning disable 1998
-
 namespace CLI.Commands
 {
     public class ItpieCommand : CommandBase, ICommand
     {
-        private HttpClient client;
-        private string itpieApiUrl = "http://localhost:5000/api";
-        private const string prompt = "itpie";
-        private const string projectPath = @"c:\Projects\vae\operations";
-        private const string projectPathEnvName = @"c:\Projects\vae\operations";
+        private readonly HttpClient client;
 
         public override string Name { get { return "itpie"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public ItpieCommand(ContextStack stack)
         {
             this.stack = stack;
-            this.HandleAcceptAllCertificates(true);
+
+            if (this.stack.AppSettings.Public.AcceptAllCerts)
+            {
+                this.client = new HttpClient(new SocketsHttpHandler
+                {
+                    SslOptions = new SslClientAuthenticationOptions
+                    {
+                        RemoteCertificateValidationCallback =
+                            new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) =>
+                            {
+                                return true;
+                            })
+                    }
+                });
+            }
+            else
+            {
+                this.client = new HttpClient();
+            }
+
+            this.client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task<bool> Run(string cmd)
         {
-            if (this.stack.Peek().HasEnvVariable(Constants.EnvironmentItpieUrlVarName))
+            if (string.IsNullOrEmpty(this.stack.AppSettings.Protected?.ItpiePass) ||
+                string.IsNullOrEmpty(this.stack.AppSettings.Protected?.ItpieUser))
             {
-                this.itpieApiUrl = this.stack.Peek().GetEnvVariable(Constants.EnvironmentItpieUrlVarName);
+                this.stack.Storage.GetUsernameAndPassword(this.stack.AppSettings);
             }
 
-            var user = this.GetUser();
-            var pass = this.GetPass();
+            if (string.IsNullOrEmpty(this.stack.AppSettings.Public?.ItpieServerUrl))
+            {
+                this.stack.Storage.GetItpieServerUrl(this.stack.AppSettings);
+            }
 
-            var did_login = await this.DoLogin(user, pass);
+            var did_login = await this.DoLogin(this.stack.AppSettings.Protected.ItpieUser, this.stack.AppSettings.Protected.ItpiePass);
             if (!did_login)
             {
                 return false;
             }
 
             this.initItpieContext(this.stack);
-
-            this.stack.Peek().SetEnvVariable(Constants.EnvironmentPasswordVarName, pass);
-            this.stack.Peek().SetEnvVariable(Constants.EnvironmentUsernameVarName, user);
-            this.stack.Peek().SetEnvVariable(Constants.EnvironmentItpieUrlVarName, this.itpieApiUrl);
             return true;
         }
 
         private ContextStack initItpieContext(ContextStack stack)
         {
-            var context = new Context
+            var context = new Context()
             {
-                Prompt = $"{prompt}",
-                Commands = Context.GetDefaultCommands(stack).Where(c => c.Name != this.Name).ToList()
+                Prompt = Name,
+                Commands = stack.CreateDefaultCommands().Where(c => c.Name != this.Name).ToList()
             };
             context.Commands.Add(new Itpie.SetupCommand(stack, this.client));
-            context.SetEnvVariable(projectPathEnvName, projectPath);
             stack.Push(context);
             Console.WriteLine();
 
             return stack;
-        }
-
-        public string GetPass()
-        {
-            var pass = string.Empty;
-            if (this.stack.Peek().HasEnvVariable(Constants.EnvironmentPasswordVarName))
-            {
-                pass = this.stack.Peek().GetEnvVariable(Constants.EnvironmentPasswordVarName);
-            }
-            else
-            {
-                this.stack.WriteStart("Password: ");
-                while (true)
-                {
-                    var key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Enter)
-                        break;
-                    pass += key.KeyChar;
-                }
-            }
-
-            return pass;
-        }
-
-        public string GetUser()
-        {
-            string user;
-            if (this.stack.Peek().HasEnvVariable(Constants.EnvironmentUsernameVarName))
-            {
-                user = this.stack.Peek().GetEnvVariable(Constants.EnvironmentUsernameVarName);
-            }
-            else
-            {
-                this.stack.WriteStart("Username: ");
-                user = Console.ReadLine();
-            }
-
-            return user;
-        }
-
-        public void HandleAcceptAllCertificates(bool acceptAllCerts)
-        {
-            if (acceptAllCerts)
-            {
-                var handler = new SocketsHttpHandler
-                {
-                    SslOptions = new SslClientAuthenticationOptions
-                    {
-                        RemoteCertificateValidationCallback = new RemoteCertificateValidationCallback((sender, certificate, chain, policyErrors) =>
-                        {
-                            return true;
-                        })
-                    }
-                };
-                this.client = new HttpClient(handler);
-                this.client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }
-            else
-            {
-                this.client = new HttpClient();
-                this.client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }
         }
 
         private class LocalLoginRequest
@@ -148,10 +98,9 @@ namespace CLI.Commands
 
         public async Task<bool> DoLogin(string user, string pass)
         {
-            var ctx = this.stack.Peek();
             try
             {
-                var response = await this.client.PostAsJsonAsync($"{this.itpieApiUrl}/authentication/login",
+                var response = await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/authentication/login",
                     new LocalLoginRequest
                     {
                         Email = user,

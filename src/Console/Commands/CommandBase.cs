@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace CLI.Commands
 {
     public abstract class CommandBase
     {
         protected ContextStack stack;
+        protected Context context { get { return this.stack.Peek(); } }
         public abstract string Name { get; }
         public abstract string[] Aliases { get; }
 

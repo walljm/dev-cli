@@ -14,7 +14,7 @@ namespace CLI.Commands
     public class PingCommand : CommandBase, ICommand
     {
         public override string Name { get { return "ping"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public PingCommand(ContextStack stack)
         {
@@ -23,7 +23,6 @@ namespace CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
             var args = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1);
 
             foreach (var target in args.Select(v => v.Trim()))
@@ -39,7 +38,7 @@ namespace CLI.Commands
                         addresses.Add(i.IntToIPv4());
                     }
 
-                    this.stack.WriteLine($"Pinging {addresses.Count} IP Addresses");
+                    ContextStack.WriteLine($"Pinging {addresses.Count} IP Addresses");
                     Console.Write(" ");
                     Parallel.ForEach(addresses, ip =>
                     {
@@ -47,33 +46,33 @@ namespace CLI.Commands
                         Console.Write(".");
                     });
 
-                    this.stack.WriteLine();
-                    this.stack.WriteLine("  Successful pings...");
+                    ContextStack.WriteLine();
+                    ContextStack.WriteLine("  Successful pings...");
                     foreach (var r in replies.Where(v => v.Status == IPStatus.Success).OrderBy(v => v.Address.ToString().IpToInt()))
                     {
-                        this.stack.WriteLine($"   {r.Address}");
+                        ContextStack.WriteLine($"   {r.Address}");
                     }
 
-                    this.stack.WriteLine();
-                    this.stack.WriteLine("  Failed pings...");
+                    ContextStack.WriteLine();
+                    ContextStack.WriteLine("  Failed pings...");
                     foreach (var r in replies.Where(v => v.Status != IPStatus.Success).OrderBy(v => v.Address.ToString().IpToInt()))
                     {
-                        this.stack.WriteLine($"   {r.Address} {r.Status}");
+                        ContextStack.WriteLine($"   {r.Address} {r.Status}");
                     }
                 }
                 else if (target.IsIP())
                 {
                     var r = ping(target);
-                    this.stack.WriteLine();
-                    this.stack.WriteLine($"         Status: {r.Status}");
-                    this.stack.WriteLine($" RoundTrip Time: {r.RoundtripTime} ms");
-                    this.stack.WriteLine($"   Time to live: {r.Options.Ttl} ms");
-                    this.stack.WriteLine($"    Buffer size: {r.Buffer.Length}");
-                    this.stack.WriteLine();
+                    ContextStack.WriteLine();
+                    ContextStack.WriteLine($"         Status: {r.Status}");
+                    ContextStack.WriteLine($" RoundTrip Time: {r.RoundtripTime} ms");
+                    ContextStack.WriteLine($"   Time to live: {r.Options.Ttl} ms");
+                    ContextStack.WriteLine($"    Buffer size: {r.Buffer.Length}");
+                    ContextStack.WriteLine();
                 }
                 else
                 {
-                    this.stack.WriteLine(
+                    ContextStack.WriteLine(
                         "Error: you must provide a valid IP or Subnet to ping.  Multiple values separated by a space.");
                 }
             }

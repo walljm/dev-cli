@@ -1,22 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>sdev</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'!=''">
-    <AssemblyName>sdev</AssemblyName>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="corp.ips" />
-    <None Remove="sdev.ips" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="corp.ips">
@@ -32,6 +21,8 @@
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="DnsClient" Version="1.3.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Zeroconf" Version="3.4.2" />
   </ItemGroup>

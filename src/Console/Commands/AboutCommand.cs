@@ -25,7 +25,7 @@ namespace CLI.Commands
             Console.WriteLine();
             Console.WriteLine("  System Information:");
             Console.WriteLine("  ---------------------------------------------");
-            this.stack.Current.PrintEnvironment();
+            this.stack.AppSettings.Public.PrintSettings();
             Console.WriteLine();
             Console.WriteLine($"  {"Version"}: {fvi.ProductVersion}");
 

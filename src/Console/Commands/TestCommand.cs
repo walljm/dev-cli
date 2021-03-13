@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using CLI.Models;
 
-#pragma warning disable 1998
-
 namespace CLI.Commands
 {
     public class TestCommand : CommandBase, ICommand
@@ -17,14 +15,14 @@ namespace CLI.Commands
         private object lockObject = "lock";
 
         public override string Name { get { return "test"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public TestCommand(ContextStack stack)
         {
             this.stack = stack;
         }
 
-        public async Task<bool> Run(string cmd)
+        public Task<bool> Run(string cmd)
         {
             var ctx = this.stack.Current;
             var args = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).ToList();
@@ -38,35 +36,35 @@ namespace CLI.Commands
                     var h = target.DeriveHiNetworkAddress();
                     var l = target.DeriveLowNetworkAddress();
 
-                    this.stack.WriteLine($"Testing {h - l} IP Addresses");
-                    var replies = testMany(l, h);
+                    ContextStack.WriteLine($"Testing {h - l} IP Addresses");
+                    var replies = this.testMany(l, h);
 
-                    printResults("SSH Open and Pingable", replies
+                    this.printResults("SSH Open and Pingable", replies
                         .Where(v => v.PingResult.Status == IPStatus.Success && v.SshResult == PortStatus.Open)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
-                    printResults("SSH Open but Ping Failed", replies
+                    this.printResults("SSH Open but Ping Failed", replies
                         .Where(v => v.PingResult.Status != IPStatus.Success && v.SshResult == PortStatus.Open)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
                     if (telnet)
                     {
-                        printResults("Telnet Open", replies
+                        this.printResults("Telnet Open", replies
                             .Where(v => v.TelnetResult == PortStatus.Open)
                             .OrderBy(v => v.Address.ToString().IpToInt())
                             .ToList());
                     }
 
-                    printResults("Ping Success but SSH Failed", replies
+                    this.printResults("Ping Success but SSH Failed", replies
                         .Where(v => v.PingResult.Status == IPStatus.Success && v.SshResult == PortStatus.Closed)
                         .OrderBy(v => v.Address.ToString().IpToInt())
                         .ToList());
 
                     if (verbose)
                     {
-                        printResults("Closed", replies
+                        this.printResults("Closed", replies
                             .Where(v => v.PingResult.Status != IPStatus.Success && v.SshResult == PortStatus.Closed)
                             .OrderBy(v => v.Address.ToString().IpToInt())
                             .ToList());
@@ -76,49 +74,49 @@ namespace CLI.Commands
                 {
                     var r = testPing(target);
                     var s = testPort(target, 22);
-                    this.stack.WriteLine();
-                    this.stack.WriteLine($"     SSH Status: {s}");
-                    this.stack.WriteLine($"    Ping Status: {r.Status}");
+                    ContextStack.WriteLine();
+                    ContextStack.WriteLine($"     SSH Status: {s}");
+                    ContextStack.WriteLine($"    Ping Status: {r.Status}");
                     if (r.Status == IPStatus.Success)
                     {
-                        this.stack.WriteLine($" RoundTrip Time: {r.RoundtripTime} ms");
-                        this.stack.WriteLine($"   Time to live: {r.Options.Ttl} ms");
-                        this.stack.WriteLine($"    Buffer size: {r.Buffer.Length}");
+                        ContextStack.WriteLine($" RoundTrip Time: {r.RoundtripTime} ms");
+                        ContextStack.WriteLine($"   Time to live: {r.Options.Ttl} ms");
+                        ContextStack.WriteLine($"    Buffer size: {r.Buffer.Length}");
                     }
 
-                    this.stack.WriteLine();
+                    ContextStack.WriteLine();
                 }
                 else
                 {
-                    this.stack.WriteLine(
+                    ContextStack.WriteLine(
                         "Error: you must provide a valid IP or Subnet to ping.  Multiple values separated by a space.");
                 }
             }
 
-            return true;
+            return Task.FromResult(true);
         }
 
         private void printResults(string msg, IEnumerable<TestResult> results)
         {
             if (results.Any())
             {
-                this.stack.WriteLine();
-                this.stack.WriteLine(msg);
-                this.stack.WriteLine("-------------------------------------------------------------------");
+                ContextStack.WriteLine();
+                ContextStack.WriteLine(msg);
+                ContextStack.WriteLine("-------------------------------------------------------------------");
 
                 foreach (var r in results)
                 {
                     if (r.PingResult.Status != IPStatus.Success && r.SshResult == PortStatus.Closed)
                     {
-                        this.stack.WriteLine($" {r.Address} {r.PingResult.Status}");
+                        ContextStack.WriteLine($" {r.Address} {r.PingResult.Status}");
                     }
                     else
                     {
-                        this.stack.WriteLine($" {r.Address}");
+                        ContextStack.WriteLine($" {r.Address}");
                     }
                 }
 
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
             }
         }
 
@@ -144,7 +142,7 @@ namespace CLI.Commands
 
                 lock (this.lockObject)
                 {
-                    if (Console.CursorLeft == Console.BufferWidth-1)
+                    if (Console.CursorLeft == Console.BufferWidth - 1)
                     {
                         Console.Write(". ");
                     }

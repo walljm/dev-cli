@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CLI.Models;
 
-#pragma warning disable 1998
-
 namespace CLI.Commands
 {
     public class HelpCommand : CommandBase, ICommand
@@ -18,11 +16,10 @@ namespace CLI.Commands
             this.stack = stack;
         }
 
-        public async Task<bool> Run(string cmd)
+        public Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
-            WriteHelp(ctx.Commands);
-            return true;
+            WriteHelp(this.context.Commands);
+            return Task.FromResult(true);
         }
 
         public static void WriteHelp(List<ICommand> commands, bool printHeader = true, bool printExit = true)
@@ -74,7 +71,7 @@ namespace CLI.Commands
 
         public Help[] GetHelp()
         {
-            return new Help[0];
+            return Array.Empty<Help>();
         }
     }
 }

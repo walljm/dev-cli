@@ -6,14 +6,12 @@ using CLI.Models;
 using CliWrap;
 using CliWrap.EventStream;
 
-#pragma warning disable 1998
-
 namespace CLI.Commands
 {
     public class GitCommand : CommandBase, ICommand
     {
         public override string Name { get { return "git"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public GitCommand(ContextStack stack)
         {
@@ -22,12 +20,11 @@ namespace CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
             var args = cmd.Split(' ').Skip(1);
 
             var cli = Cli.Wrap(this.Name)
                 .WithValidation(CommandResultValidation.None)
-                .WithWorkingDirectory(ctx.GetEnvVariable(Constants.EnvironmentProjectPath))
+                .WithWorkingDirectory(this.stack.AppSettings.Public.ItpieProjectPath)
                 .WithArguments(args)
                 ;
 
@@ -36,11 +33,11 @@ namespace CLI.Commands
                 switch (cmdEvent)
                 {
                     case StandardOutputCommandEvent stdOut:
-                        this.stack.WriteLine(stdOut.Text);
+                        ContextStack.WriteLine(stdOut.Text);
                         break;
 
                     case StandardErrorCommandEvent stdErr:
-                        this.stack.WriteLine(stdErr.Text);
+                        ContextStack.WriteLine(stdErr.Text);
                         break;
                 }
             }
@@ -56,7 +53,7 @@ namespace CLI.Commands
                     Command = $"{this.Name}",
                     Description = new List<string>
                     {
-                        $"Execute {this.Name} commands in the current environment: {this.stack.Current.GetEnvVariable(Constants.EnvironmentProjectPath)}",
+                        $"Execute {this.Name} commands in the current environment: {this.stack.AppSettings.Public.ItpieProjectPath}",
                         "",
                         "Aliases:",
                         $"  {string.Join(" | ", this.Aliases)}",

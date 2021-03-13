@@ -40,7 +40,7 @@ namespace CLI.Commands
             var args = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).ToList();
             if (args.Count == 0)
             {
-                this.stack.WriteLine(
+                ContextStack.WriteLine(
                     "Error: you must provide a valid IP to lookup.  Multiple values separated by a space.");
                 return Task.FromResult(false);
             }
@@ -64,9 +64,9 @@ namespace CLI.Commands
         {
             foreach (var ns in this.client.NameServers)
             {
-                this.stack.WriteLine($"Name Server: {ns}");
+                ContextStack.WriteLine($"Name Server: {ns}");
             }
-            this.stack.WriteLine();
+            ContextStack.WriteLine();
 
             var result = this.client.QueryReverse(ip);
             if (result.Answers.Count == 0)
@@ -75,16 +75,16 @@ namespace CLI.Commands
             }
 
             this.WriteResponse(result.Answers);
-            this.stack.WriteLine();
+            ContextStack.WriteLine();
         }
 
         private void lookupDns(string host)
         {
             foreach (var ns in this.client.NameServers)
             {
-                this.stack.WriteLine($"Name Server: {ns}");
+                ContextStack.WriteLine($"Name Server: {ns}");
             }
-            this.stack.WriteLine();
+            ContextStack.WriteLine();
 
             foreach (QueryType t in Enum.GetValues(typeof(QueryType)))
             {
@@ -95,7 +95,7 @@ namespace CLI.Commands
                 }
 
                 this.WriteResponse(result.Answers);
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
             }
         }
 
@@ -118,7 +118,7 @@ namespace CLI.Commands
             foreach (var group in groups)
             {
                 var t = group.Key;
-                this.stack.WriteLine($" Record Type: {t.Name}");
+                ContextStack.WriteLine($" Record Type: {t.Name}");
                 var fArray = t
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(propInfo =>
@@ -147,14 +147,14 @@ namespace CLI.Commands
                 {
                     Console.Write($"  {prop.Name.PadRight(prop.Width + 2)}");
                 }
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
 
                 // column divider
                 foreach (var prop in fArray)
                 {
                     Console.Write($"  {string.Empty.PadRight(prop.Width, '-')}  ");
                 }
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
 
                 // data
                 foreach (var d in group)
@@ -164,9 +164,9 @@ namespace CLI.Commands
                         var v = prop.Info.GetValue(d)?.ToString() ?? "";
                         Console.Write($"  {v.PadRight(prop.Width + 2)}");
                     }
-                    this.stack.WriteLine();
+                    ContextStack.WriteLine();
                 }
-                this.stack.WriteLine();
+                ContextStack.WriteLine();
             }
         }
 

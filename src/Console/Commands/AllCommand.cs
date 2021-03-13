@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CLI.Models;
-using System.IO;
-using System.Text.RegularExpressions;
-
-#pragma warning disable 1998
 
 namespace CLI.Commands
 {
     public class AllCommand : CommandBase, ICommand
     {
         public override string Name { get { return "all"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public AllCommand(ContextStack stack)
         {
@@ -22,13 +20,12 @@ namespace CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
             var args = (cmd.StartsWith(this.Name) ? cmd : $"{this.Name} {cmd}").Split(' ').Skip(1);
             var cmdtorun = string.Join(' ', args);
-            var oldPath = ctx.GetEnvVariable(Constants.EnvironmentProjectPath);
+            var oldPath = this.stack.AppSettings.Public.ItpieProjectPath;
 
             // get all the projects
-            var projects = Directory.GetDirectories(ctx.GetEnvVariable(Constants.EnvironmentProjectPath))
+            var projects = Directory.GetDirectories(this.stack.AppSettings.Public.ItpieProjectPath)
                 .Where(d => Regex.IsMatch(d, @"^\w") && Directory.Exists(Path.Combine(d, ".git")));
 
             foreach (var project in projects)
@@ -38,16 +35,16 @@ namespace CLI.Commands
                 Console.WriteLine($"{cmdtorun} {project}");
                 Console.WriteLine("---------------------------------------------");
                 Console.ResetColor();
-                ctx.SetEnvVariable(Constants.EnvironmentProjectPath, project);
-                var torun = ctx.GetCommand(cmdtorun);
-                if (torun  != null)
+                this.stack.AppSettings.Public.ItpieProjectPath = project;
+                var torun = this.context.GetCommand(cmdtorun);
+                if (torun != null)
                 {
                     await torun.Run(cmdtorun);
                 }
                 Console.WriteLine();
             }
 
-            ctx.SetEnvVariable(Constants.EnvironmentProjectPath, oldPath);
+            this.stack.AppSettings.Public.ItpieProjectPath = oldPath;
             return true;
         }
 
@@ -59,7 +56,7 @@ namespace CLI.Commands
                     Command = $"{this.Name}",
                     Description = new List<string>
                     {
-                        $"Run a command in every project folder under {this.stack.Current.GetEnvVariable(Constants.EnvironmentProjectPath)}",
+                        $"Run a command in every project folder under {this.stack.AppSettings.Public.ItpieProjectPath}",
                         "",
                         "Aliases:",
                         $"  {string.Join(" | ", this.Aliases)}",

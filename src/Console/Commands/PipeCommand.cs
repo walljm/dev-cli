@@ -12,7 +12,7 @@ namespace CLI.Commands
     public class PipeCommand : CommandBase, ICommand
     {
         public override string Name { get { return "|"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public PipeCommand(ContextStack stack)
         {
@@ -21,8 +21,6 @@ namespace CLI.Commands
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
-
             var cmds = Regex.Split(cmd.Trim(), @"((?:[^|""']|""[^""]*""|'[^']*')+)")
                           .Skip(1)
                           .Where(o => o != this.Name)
@@ -51,7 +49,7 @@ namespace CLI.Commands
                 {
                     Console.SetOut(wr);
 
-                    await ctx.HandlePipeCommand(cmdText, last);
+                    await this.context.HandlePipeCommand(cmdText, last);
                 }
                 last = sb;
             }

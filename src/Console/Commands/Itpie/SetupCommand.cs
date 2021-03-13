@@ -14,7 +14,7 @@ namespace CLI.Commands.Itpie
         private readonly HttpClient client;
 
         public override string Name { get { return "setup"; } }
-        public override string[] Aliases { get { return new string[] { }; } }
+        public override string[] Aliases { get { return Array.Empty<string>(); } }
 
         public SetupCommand(ContextStack stack, HttpClient client)
         {
@@ -24,35 +24,31 @@ namespace CLI.Commands.Itpie
 
         public async Task<bool> Run(string cmd)
         {
-            var ctx = this.stack.Current;
             var args = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1);
-            var name = args.Take(1).FirstOrDefault() ?? "all";
+            var ips = args.Take(1).FirstOrDefault() ?? "all";
 
-            var itpieUrl = ctx.GetEnvVariable(Constants.EnvironmentItpieUrlVarName);
-            switch (name)
+            switch (ips)
             {
-                case "sdev":
+                case "all":
                 {
-                    await this.doSetup(name, itpieUrl);
+                    var files = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.ips");
+                    foreach (var file in files)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(file);
+                        await this.doSetup(name);
+                    }
                     break;
                 }
-                case "corp":
-                {
-                    await this.doSetup(name, itpieUrl);
-                    break;
-                }
-                // setup all ips.
                 default:
                 {
-                    await this.doSetup("sdev", itpieUrl);
-                    await this.doSetup("corp", itpieUrl);
+                    await this.doSetup(ips);
                     break;
                 }
             }
             return true;
         }
 
-        private async Task doSetup(string name, string itpieUrl)
+        private async Task doSetup(string name)
         {
             var ips = string.Empty;
             if (File.Exists($"{name}.ips"))
@@ -68,9 +64,9 @@ namespace CLI.Commands.Itpie
                 Protocol = "Ssh",
                 IncludedRanges = ips
             };
-            await this.client.PostAsJsonAsync($"{itpieUrl}/collection/jobs/target", job);
+            await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/jobs/target", job);
 
-            var (user, pass) = this.GetCredentials(name);
+            var (user, pass) = getCredentials(name);
             var creds = new CredentialGroupRequest
             {
                 Name = $"{name}-{Guid.NewGuid()}",
@@ -88,14 +84,14 @@ namespace CLI.Commands.Itpie
                 }
             };
 
-            await this.client.PostAsJsonAsync($"{itpieUrl}/collection/credential-groups", creds);
+            await this.client.PostAsJsonAsync($"{this.stack.AppSettings.Public.IptieApiUrl}/collection/credential-groups", creds);
         }
 
-        public (string, string) GetCredentials(string action)
+        private static (string, string) getCredentials(string action)
         {
-            this.stack.WriteLine($"Please enter the credentials for the {action} job");
+            ContextStack.WriteLine($"Please enter credentials for the {action} job");
 
-            this.stack.WriteStart("Username: ");
+            ContextStack.WriteStart("Username: ");
             var user = string.Empty;
             while (true)
             {
@@ -107,7 +103,7 @@ namespace CLI.Commands.Itpie
 
             Console.WriteLine();
 
-            this.stack.WriteStart("Password: ");
+            ContextStack.WriteStart("Password: ");
             var pass = string.Empty;
             while (true)
             {
@@ -130,7 +126,7 @@ namespace CLI.Commands.Itpie
                     Command = $"{this.Name}",
                     Description = new List<string>
                     {
-                        $"Test subnet or ip for ping",
+                        $"Setup jobs and credentials for ITPIE",
                         "",
                         "Aliases:",
                         $"  {string.Join(" | ", this.Aliases)}",

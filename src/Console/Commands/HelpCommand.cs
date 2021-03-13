@@ -52,29 +52,38 @@ namespace CLI.Commands
             foreach (var command in commands)
             {
                 var helps = command.GetHelp();
+
                 foreach (var help in helps)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write($"{spacer}{help.Command.Name.PadRight(cWidth)}");
+                    Console.Write($"{spacer}{help.Command.Name.PadLeft(cWidth)}");
                     Console.ResetColor();
                     Console.Write($"{spacer}{help.Description.First()}");
-
                     Console.WriteLine();
-                    if (help.Command.Aliases.Length > 0)
-                    {
-                        Console.WriteLine($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}Aliases: {string.Join(", ", help.Command.Aliases)}");
-                    }
-
                     foreach (var desc in help.Description.Skip(1))
                     {
                         Console.WriteLine($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}{desc}");
                     }
                     Console.WriteLine();
+
+                    if (help.Command.Aliases.Length > 0)
+                    {
+                        Console.Write($"{spacer}{string.Empty.PadRight(cWidth)}{spacer}Aliases: ");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write($"{string.Join(", ", help.Command.Aliases)}");
+                        Console.ResetColor();
+                        Console.WriteLine();
+                        Console.WriteLine();
+                    }
                 }
             }
             if (printExit)
             {
-                Console.WriteLine($"{spacer}{"exit".PadRight(cWidth)}{spacer}Exits the CLI application");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"{spacer}{"exit".PadLeft(cWidth)}");
+                Console.ResetColor();
+                Console.Write($"{spacer}Exits the CLI application");
+                Console.WriteLine();
             }
 
             Console.WriteLine();

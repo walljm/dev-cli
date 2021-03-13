@@ -11,10 +11,10 @@ namespace CLI.Settings
 
         public void PrintSettings()
         {
-            Console.WriteLine($"  {nameof(this.ItpieProjectPath),25}: {this.ItpieProjectPath}");
-            Console.WriteLine($"  {nameof(this.ItpieServerUrl),25}: {this.ItpieServerUrl}");
-            Console.WriteLine($"  {nameof(this.IptieApiUrl),25}: {this.IptieApiUrl}");
-            Console.WriteLine($"  {nameof(this.AcceptAllCerts),25}: {this.AcceptAllCerts}");
+            Console.WriteLine($"  {nameof(this.ItpieProjectPath),20}: {this.ItpieProjectPath}");
+            Console.WriteLine($"  {nameof(this.ItpieServerUrl),20}: {this.ItpieServerUrl}");
+            Console.WriteLine($"  {nameof(this.IptieApiUrl),20}: {this.IptieApiUrl}");
+            Console.WriteLine($"  {nameof(this.AcceptAllCerts),20}: {this.AcceptAllCerts}");
         }
 
         public void UpdateWithCommandLineSettings(CommandLineSettings cls)

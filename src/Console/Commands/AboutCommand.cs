@@ -20,7 +20,7 @@ namespace CLI.Commands
         {
             Console.WriteLine();
             Console.WriteLine("  System Information:");
-            Console.WriteLine("  ---------------------------------------------");
+            Console.WriteLine("  -----------------------------------------------------------------------------");
             this.stack.AppSettings.Public.PrintSettings();
             Console.WriteLine();
             Console.WriteLine($"  {"Version"}: {Assembly.GetExecutingAssembly().GetName().Version}");

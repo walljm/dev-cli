@@ -66,7 +66,7 @@ namespace CLI
         public void WritePrompt()
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write($" {string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(c => c.Prompt))}> ");
+            ContextStack.WriteStart($"{string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(c => c.Prompt))}> ");
             Console.ResetColor();
         }
 

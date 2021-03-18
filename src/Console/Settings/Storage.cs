@@ -10,12 +10,14 @@ namespace CLI.Settings
     {
         private readonly IDataProtector protector;
 
-        private readonly string protectedFilePath = "protected.settings";
-        private readonly string settingsFilePath = "public.settings";
+        private readonly string protectedFilePath;
+        private readonly string settingsFilePath;
 
         // the 'provider' parameter is provided by DI
         public Storage()
         {
+            this.protectedFilePath = Path.Combine(AppContext.BaseDirectory, "protected.settings");
+            this.settingsFilePath = Path.Combine(AppContext.BaseDirectory, "public.settings");
             var name = $"{Assembly.GetExecutingAssembly().GetName().Name}.{nameof(CommandLineInterface)}";
             var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"), name);
 

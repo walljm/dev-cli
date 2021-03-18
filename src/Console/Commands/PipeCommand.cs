@@ -85,8 +85,8 @@ namespace CLI.Commands
                     Description = new List<string>{
                         "Allows you to send output from one command into another.",
                         "  Examples:",
-                        "   - find device * | in 10.10.10.10",
-                        "   - find device * | re \"Cisco|Juniper\"",
+                        "   > find device * | in 10.10.10.10",
+                        "   > find device * | re \"Cisco|Juniper\"",
                     }
                 }
             };

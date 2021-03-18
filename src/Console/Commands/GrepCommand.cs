@@ -61,7 +61,7 @@ namespace CLI.Commands
                     Command = this,
                     Description = new List<string>{
                         "Used in conjunction with pipe, it allows you to filter results using regular expressions.",
-                        "  The '|' character is supported only if the expresssion is quoted.",
+                        "  The '|' character is only supported in grep expressions if the expresssion is quoted.",
                         "",
                         "Examples:",
                         " > find device * | grep 10.10.10.10",

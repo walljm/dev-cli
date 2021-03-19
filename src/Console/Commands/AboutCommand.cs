@@ -19,12 +19,9 @@ namespace CLI.Commands
         public Task<bool> Run(string cmd)
         {
             Console.WriteLine();
-            Console.WriteLine("  System Information:");
+            Console.WriteLine($"  System Information: {getVersion()}");
             Console.WriteLine("  -----------------------------------------------------------------------------");
             this.stack.AppSettings.Public.PrintSettings();
-            Console.WriteLine();
-            Console.WriteLine($"  {"Version"}: {Assembly.GetExecutingAssembly().GetName().Version}");
-
             Console.WriteLine();
             return Task.FromResult(true);
         }
@@ -41,6 +38,12 @@ namespace CLI.Commands
                     }
                 }
             };
+        }
+
+        private static string getVersion()
+        {
+            var v = Assembly.GetExecutingAssembly().GetName().Version;
+            return $"{v.Major}.{v.Minor}.{v.Revision}";
         }
     }
 }

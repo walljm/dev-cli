@@ -4,6 +4,7 @@ namespace CLI.Settings
 {
     public class PublicSettings
     {
+        public string DefaultPrompt { get; set; } = "sdev";
         public string ItpieServerUrl { get; set; }
         public string IptieApiUrl { get { return $"{this.ItpieServerUrl}/api"; } }
         public bool AcceptAllCerts { get; set; } = false;
@@ -27,6 +28,7 @@ namespace CLI.Settings
             this.ItpieServerUrl = cls.ItpieApiUrl ?? this.ItpieServerUrl;
             this.AcceptAllCerts = cls.AcceptAllCerts ?? this.AcceptAllCerts;
             this.ItpieProjectPath = cls.ItpieProjectPath ?? this.ItpieProjectPath;
+            this.DefaultPrompt = cls.DefaultPrompt ?? this.DefaultPrompt;
         }
     }
 }

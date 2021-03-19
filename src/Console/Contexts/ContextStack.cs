@@ -13,6 +13,7 @@ namespace CLI
     public class ContextStack
     {
         private readonly Stack<Context> stack = new();
+        private static string spacer = "";
 
         public int Count { get { return this.stack.Count; } }
         public Context Current { get { return this.stack.Peek(); } }
@@ -66,7 +67,7 @@ namespace CLI
         public void WritePrompt()
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            ContextStack.WriteStart($"{string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(c => c.Prompt))}> ");
+            WriteStart($"{string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(c => c.Prompt))}# ");
             Console.ResetColor();
         }
 
@@ -100,7 +101,7 @@ namespace CLI
 
         public static void WriteStart(string str = "")
         {
-            Console.Write($" {str}");
+            Console.Write($"{spacer}{str}");
         }
 
         public static void WriteLine(string str = "")
@@ -114,14 +115,14 @@ namespace CLI
             var lines = str.Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
-                Console.WriteLine($" {line}");
+                Console.WriteLine($"{spacer}{line}");
             }
         }
 
         public static void WriteError(string str)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($" {str}");
+            Console.WriteLine($"{spacer}{str}");
             Console.ResetColor();
         }
     }

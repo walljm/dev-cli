@@ -21,7 +21,7 @@ namespace CLI
         {
             // start up an initial stack of contexts
             var stack = new ContextStack(this.appSettings, this.storage);
-            stack.AddContext(new Context(Constants.DefaultPrompt, stack.CreateDefaultCommands()));
+            stack.AddContext(new Context(this.appSettings.Public.DefaultPrompt, stack.CreateDefaultCommands()));
 
             // say hello to the user.
             var welcome = new List<string>

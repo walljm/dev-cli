@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
@@ -12,6 +13,8 @@ namespace CLI.Settings
 
         private readonly string protectedFilePath;
         private readonly string settingsFilePath;
+
+        private static readonly HashSet<string> yesAnswers = new() { "Y", "y", "yes" };
 
         // the 'provider' parameter is provided by DI
         public Storage()
@@ -67,7 +70,7 @@ namespace CLI.Settings
             return settings; // return defaults.
         }
 
-        public void GetUsernameAndPassword(AppSettings settings, bool store = false)
+        public void GetUsernameAndPassword(AppSettings settings, bool prompt = true)
         {
             // if you're storing the protected settings, then you can safely reset them here.
             settings.Protected = new ProtectedSettings();
@@ -88,26 +91,9 @@ namespace CLI.Settings
             }
 
             ContextStack.WriteLine();
-            if (!store)
+            if (prompt)
             {
-                ContextStack.WriteStart("Write credentials to secure Storage? (y/n): ");
-                while (true)
-                {
-                    var key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Y)
-                    {
-                        // store whatever settings were passed in.
-                        this.StoreSettings(settings);
-                    }
-
-                    break;
-                }
-
-                ContextStack.WriteLine();
-            }
-            else
-            {
-                this.StoreSettings(settings);
+                this.promptToStoreSettings(settings);
             }
         }
 
@@ -117,17 +103,17 @@ namespace CLI.Settings
             ContextStack.WriteStart("Please enter your ITPIE URL (e.g. https://itpie.com): ");
             settings.Public.ItpieServerUrl = Console.ReadLine();
 
-            ContextStack.WriteStart("Write to settings file? (y/n): ");
-            while (true)
-            {
-                var key = Console.ReadKey(true);
-                if (key.Key == ConsoleKey.Y)
-                {
-                    // store whatever settings were passed in.
-                    this.StoreSettings(settings);
-                }
+            this.promptToStoreSettings(settings);
+        }
 
-                break;
+        public void promptToStoreSettings(AppSettings settings)
+        {
+            ContextStack.WriteStart("Write to settings file? (y/n): ");
+            var key = Console.ReadLine();
+            if (yesAnswers.Contains(key.Trim()))
+            {
+                // store whatever settings were passed in.
+                this.StoreSettings(settings);
             }
             ContextStack.WriteLine();
         }

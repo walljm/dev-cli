@@ -16,19 +16,24 @@ namespace CLI.Settings
 
         private static readonly HashSet<string> yesAnswers = new() { "Y", "y", "yes" };
 
-        // the 'provider' parameter is provided by DI
         public Storage()
         {
-            this.protectedFilePath = Path.Combine(AppContext.BaseDirectory, "protected.settings");
-            this.settingsFilePath = Path.Combine(AppContext.BaseDirectory, "public.settings");
-            var name = $"{Assembly.GetExecutingAssembly().GetName().Name}.{nameof(CommandLineInterface)}";
-            var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"), name);
+            var name = Assembly.GetExecutingAssembly().GetName().Name;
+            this.protectedFilePath = Path.Combine(AppContext.BaseDirectory, $"{name}.protected.settings");
+            this.settingsFilePath = Path.Combine(AppContext.BaseDirectory, $"{name}.public.settings");
+            var dpName = $"{name}.{nameof(CommandLineInterface)}";
+            var destFolder = Path.Combine(Environment.GetEnvironmentVariable("LOCALAPPDATA"), dpName);
 
             // Instantiate the data protection system at this folder
             var dataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo(destFolder));
-            this.protector = dataProtectionProvider.CreateProtector(name);
+            this.protector = dataProtectionProvider.CreateProtector(dpName);
         }
 
+        /// <summary>
+        /// Store the <see cref="AppSettings"/> object.  Handle the <see cref="AppSettings.Protected"/>
+        /// settings securely using the <see cref="DataProtectionProvider"/> api.
+        /// </summary>
+        /// <param name="obj">The <see cref="AppSettings"/> object to store securely for this application</param>
         public void StoreSettings(AppSettings obj)
         {
             if (File.Exists(this.protectedFilePath))
@@ -41,9 +46,13 @@ namespace CLI.Settings
             }
 
             File.WriteAllText(this.protectedFilePath, this.protector.Protect(JsonConvert.SerializeObject(obj.Protected)));
-            File.WriteAllText(this.settingsFilePath, JsonConvert.SerializeObject(obj.Public));
+            File.WriteAllText(this.settingsFilePath, JsonConvert.SerializeObject(obj.Public, Formatting.Indented));
         }
 
+        /// <summary>
+        /// Get the previously stored <see cref="AppSettings"/> object, or if none exists,
+        /// a default instantiation of the <see cref="AppSettings"/>.
+        /// </summary>
         public AppSettings RetrieveSettings()
         {
             var settings = new AppSettings();

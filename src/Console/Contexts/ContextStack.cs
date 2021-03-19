@@ -93,7 +93,7 @@ namespace CLI
 
         private string getTitle()
         {
-            return $"{Assembly.GetExecutingAssembly().GetName().Name}: {string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(o => o.Prompt))}";
+            return $"{string.Join(Path.DirectorySeparatorChar, this.stack.Reverse().Select(o => o.Prompt))}";
         }
 
         public static void Write(string str = "")
